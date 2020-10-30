@@ -1,0 +1,2 @@
+DROP SCHEMA IF EXISTS preprojet CASCADE;
+CREATE SCHEMA preprojet;
