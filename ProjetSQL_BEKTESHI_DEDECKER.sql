@@ -59,5 +59,7 @@ CREATE TABLE projet.locaux_examens (
 INSERT
 */
 
-INSERT INTO locaux ('id_local',capacite,machine) 
+INSERT INTO projet.locaux (id_local,capacite,machine) 
 	VALUES ('A114',50,'o');
+	
+SELECT * FROM projet.locaux;
