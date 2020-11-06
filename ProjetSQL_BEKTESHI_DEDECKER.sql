@@ -1,6 +1,10 @@
 DROP SCHEMA IF EXISTS projet CASCADE;
 CREATE SCHEMA projet;
 
+/*
+CREATE TABLES
+*/
+
 CREATE TABLE projet.formations (
 	id_formation SERIAL PRIMARY KEY,
 	nom VARCHAR(100) NOT NULL CHECK (nom<>''),
@@ -49,3 +53,11 @@ CREATE TABLE projet.locaux_examens (
 	code_examen VARCHAR(6) REFERENCES projet.examens (code_examen) NOT NULL,
 	PRIMARY KEY (id_local,code_examen)
 );
+
+
+/*
+INSERT
+*/
+
+INSERT INTO locaux ('id_local',capacite,machine) 
+	VALUES ('A114',50,'o');
