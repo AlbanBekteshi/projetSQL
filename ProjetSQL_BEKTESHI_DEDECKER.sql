@@ -19,7 +19,7 @@ CREATE TABLE projet.utilisateurs(
 	nom_utilisateur VARCHAR(100) NOT NULL UNIQUE CHECK(nom_utilisateur<>''),
 	email VARCHAR(100) NOT NULL UNIQUE CHECK(email<>''),
 	mot_de_passe VARCHAR(100) NOT NULL (mot_de_passe<>''),
-	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
+	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL -- est-ce qu'on est sur de sa ? 
 );
 
 CREATE TABLE projet.examens(
@@ -29,5 +29,23 @@ CREATE TABLE projet.examens(
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL,
 	duree INT(3) NOT NULL, 
 	date timestamp without time zone NOT NULL,
-	support CHAR(1) NOT NULL CHECK (support='m' || support='e' )
+	support CHAR(1) NOT NULL CHECK (support='m' || support='e')
+);
+
+CREATE TABLE projet.inscriptions_examens(
+	code_examen INTEGER REFERENCES projet.examens (code_examen) NOT NULL,
+	id_utilisateur INTEGER REFERENCES projet.utilisateurs(id_utilisateur) NOT NULL,
+	PRIMARY KEY (code_examen,id_utilisateur)
+);
+
+CREATE TABLE projet.locaux (
+	id_local VARCHAR(10) PRIMARY KEY UNIQUE CHECK(id_local<>''),
+	capacite INT(4) NOT NULL,
+	machine CHAR(1) NOT NULL CHECK (machine='o' ||machine='n')
+);
+
+CREATE TABLE projet.locaux_examens (
+	id_local INTEGER REFERENCES projet.locaux (id_local) NOT NULL,
+	code_examen INTEGER REFERENCES projet.examens (code_examen) NOT NULL,
+	PRIMARY KEY (id_local,code_examen)
 );
