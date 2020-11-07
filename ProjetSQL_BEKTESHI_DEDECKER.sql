@@ -61,5 +61,8 @@ INSERT
 
 INSERT INTO projet.locaux (id_local,capacite,machine) 
 	VALUES ('A114',50,'o');
+
+INSERT INTO projet.formations (nom, ecole) 
+	VALUES ('Test Formation','IPL');
 	
-SELECT * FROM projet.locaux;
+SELECT * FROM projet.formations;
