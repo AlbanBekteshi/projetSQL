@@ -27,7 +27,7 @@ CREATE TABLE projet.utilisateurs(
 );
 
 CREATE TABLE projet.examens(
-	code_examen VARCHAR(6) PRIMARY KEY UNIQUE
+	code_examen CHARACTER(6) PRIMARY KEY UNIQUE
 		CHECK(code_examen SIMILAR TO 'IPL[0-9][0-9][0-9]'),
 	nom VARCHAR(100) NOT NULL CHECK(nom<>''),
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL,
@@ -66,3 +66,16 @@ INSERT INTO projet.formations (nom, ecole)
 	VALUES ('Test Formation','IPL');
 	
 SELECT * FROM projet.formations;
+
+CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR, capacite INT,machine CHAR) return AS $$
+
+DECLARE -- Faut-il obligatoirement le mettre ? 
+
+BEGIN
+	IF(capacite<=0) THEN RAISE 'Capacité doit être > que 0'
+	END IF;
+	INSERT INTO projet.locaux VALUES
+		(id_local,capacite,machine);
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
