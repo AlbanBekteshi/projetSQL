@@ -97,5 +97,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
-SELECT * FROM projet.utilisateurs;
+--SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
+--SELECT * FROM projet.utilisateurs;
+
+CREATE OR REPLACE FUNCTION projet.ajoutExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, date timestamp without zone, support CHAR(1)) RETURNS VOID AS $$
+DECLARE
+BEGIN
+	IF NOT EXISTS(SELECT * FROM projet.blocs b 
+					WHERE b.id_bloc=id_blocN) THEN	
+		RAISE 'Le bloc nexiste pas';
+	END IF;
+	INSERT INTO projet.Examens(code_examen,nom,id_bloc,duree,date,support) 
+		VALUES(code_examen,nom,id_blocN,duree,date,support)
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'2020-08-25','e');
+SELECT * FROM projet.examens;
