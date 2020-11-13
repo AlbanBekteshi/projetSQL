@@ -44,7 +44,7 @@ CREATE TABLE projet.inscriptions_examens(
 
 CREATE TABLE projet.locaux (
 	id_local VARCHAR(10) PRIMARY KEY UNIQUE CHECK(id_local<>''),
-	capacite INT NOT NULL,
+	capacite INT NOT NULL CHECK(capacite>0),
 	machine CHAR(1) NOT NULL CHECK (machine='o' OR machine='n')
 );
 
