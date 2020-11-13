@@ -58,14 +58,14 @@ CREATE TABLE projet.locaux_examens (
 /*
 INSERT
 */
-
 INSERT INTO projet.locaux (id_local,capacite,machine) 
 	VALUES ('A114',50,'o');
 
 INSERT INTO projet.formations (nom, ecole) 
 	VALUES ('Test Formation','IPL');
-	
-SELECT * FROM projet.formations;
+
+INSERT INTO projet.blocs (code_bloc,id_formation)
+	VALUES ('2BIN',1);
 
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
 
@@ -83,3 +83,18 @@ $$ LANGUAGE plpgsql;
 
 SELECT projet.ajouterLocal('2b1',5,'o');
 SELECT * FROM projet.locaux;
+
+CREATE OR REPLACE FUNCTION projet.inscriptionUtilisateur(nom_utilisateur VARCHAR(100), email VARCHAR(100), mot_de_passe VARCHAR(100), id_bloc INTEGER) RETURNS VOID AS $$
+DECLARE
+BEGIN
+	IF((SELECT count(*) FROM projet.blocs WHERE projet.blocs.id_bloc = id_bloc) != 1) THEN
+		RAISE 'id_bloc entré n existe pas !';
+	END IF;
+	INSERT INTO projet.utilisateurs 
+		VALUES(DEFAULT,nom_utilisateur,email,mot_de_passe,id_bloc);
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
+SELECT * FROM projet.utilisateurs;
