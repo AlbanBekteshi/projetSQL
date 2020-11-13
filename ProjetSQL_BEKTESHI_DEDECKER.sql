@@ -61,6 +61,9 @@ INSERT
 
 INSERT INTO projet.formations (nom, ecole) 
 	VALUES ('Test Formation','IPL');
+	
+INSERT INTO projet.blocs(code_bloc,id_formation) 
+	VALUES('2BIN',1);
 
 
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
