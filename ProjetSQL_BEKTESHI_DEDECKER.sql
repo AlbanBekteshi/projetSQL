@@ -61,10 +61,9 @@ INSERT
 
 INSERT INTO projet.formations (nom, ecole) 
 	VALUES ('Test Formation','IPL');
+INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
+	VALUES(DEFAULT,'2BIN',1);
 	
-INSERT INTO projet.blocs(code_bloc,id_formation) 
-	VALUES('2BIN',1);
-
 
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
 
@@ -85,14 +84,18 @@ $$ LANGUAGE plpgsql;
 --SELECT * FROM projet.locaux;
 
 
-CREATE OR REPLACE FUNCTION projet.inscriptionUtilisateur(nom_utilisateur VARCHAR(100), email VARCHAR(100), mot_de_passe VARCHAR(100), id_bloc INTEGER) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION projet.inscriptionUtilisateur(nom_utilisateur VARCHAR(100), email VARCHAR(100), mot_de_passe VARCHAR(100), id_blocN INTEGER) RETURNS VOID AS $$
 DECLARE
 BEGIN
+	IF NOT EXISTS(SELECT * FROM projet.blocs b
+				WHERE b.id_bloc =id_blocN) THEN
+		RAISE 'Le bloc nexiste pas';
+	END IF;
     INSERT INTO projet.utilisateurs 
-        VALUES(DEFAULT,nom_utilisateur,email,mot_de_passe,id_bloc);
+        VALUES(DEFAULT,nom_utilisateur,email,mot_de_passe,id_blocN);
     RETURN;
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
+SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',2);
 SELECT * FROM projet.utilisateurs;
