@@ -89,7 +89,7 @@ DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.blocs b
 				WHERE b.id_bloc =id_blocN) THEN
-		RAISE 'Le bloc nexiste pas';
+		RAISE 'Bloc invalide';
 	END IF;
     INSERT INTO projet.utilisateurs 
         VALUES(DEFAULT,nom_utilisateur,email,mot_de_passe,id_blocN);
