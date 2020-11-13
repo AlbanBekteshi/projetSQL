@@ -62,6 +62,9 @@ INSERT
 INSERT INTO projet.formations (nom, ecole) 
 	VALUES ('Test Formation','IPL');
 	
+INSERT INTO projet.blocs(code_bloc,id_formation) 
+	VALUES('2BIN',1);
+
 
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
 
@@ -85,9 +88,6 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION projet.inscriptionUtilisateur(nom_utilisateur VARCHAR(100), email VARCHAR(100), mot_de_passe VARCHAR(100), id_bloc INTEGER) RETURNS VOID AS $$
 DECLARE
 BEGIN
-    IF((SELECT count(*) FROM projet.blocs WHERE projet.blocs.id_bloc = id_bloc) != 1) THEN
-        RAISE 'id_bloc entré n existe pas !';
-    END IF;
     INSERT INTO projet.utilisateurs 
         VALUES(DEFAULT,nom_utilisateur,email,mot_de_passe,id_bloc);
     RETURN;
