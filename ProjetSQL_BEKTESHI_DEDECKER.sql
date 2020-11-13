@@ -67,15 +67,19 @@ INSERT INTO projet.formations (nom, ecole)
 	
 SELECT * FROM projet.formations;
 
-CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR, capacite INT,machine CHAR) return AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
 
 DECLARE -- Faut-il obligatoirement le mettre ? 
 
 BEGIN
-	IF(capacite<=0) THEN RAISE 'Capacité doit être > que 0'
+	IF(capacite<=0) THEN 
+		RAISE 'Capacité doit être > que 0';
 	END IF;
 	INSERT INTO projet.locaux VALUES
 		(id_local,capacite,machine);
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
+
+SELECT projet.ajouterLocal('2b1',5,'o');
+SELECT * FROM projet.locaux;
