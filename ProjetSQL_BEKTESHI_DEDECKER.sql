@@ -97,5 +97,5 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',2);
+SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
 SELECT * FROM projet.utilisateurs;
