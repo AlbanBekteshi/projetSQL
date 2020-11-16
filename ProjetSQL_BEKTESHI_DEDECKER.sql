@@ -108,7 +108,7 @@ BEGIN
 		RAISE 'Le bloc nexiste pas';
 	END IF;
 	INSERT INTO projet.Examens(code_examen,nom,id_bloc,duree,date,support) 
-		VALUES(code_examen,nom,id_blocN,duree,date,support)
+		VALUES(code_examen,nom,id_blocN,duree,date,support);
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
@@ -145,7 +145,7 @@ BEGIN
 					WHERE u.id_utilisateur = id_utilisateurN) THEN
 		RAISE 'L utilisateur nexiste pas';
 	END IF;
-	INSERT INTO projet.inscriptions_examens(code_examenN,id_utilisateurN);
+	INSERT INTO projet.inscriptions_examens VALUES(code_examenN,id_utilisateurN);
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
