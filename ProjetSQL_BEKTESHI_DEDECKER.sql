@@ -115,3 +115,19 @@ $$ LANGUAGE plpgsql;
 
 --SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'2020-08-25','e');
 --SELECT * FROM projet.examens;
+
+CREATE OR REPLACE FUNCTION projet.ajoutLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
+DECLARE
+BEGIN
+	IF NOT EXISTS(SELECT * FROM projet.locaux l
+					WHERE l.id_local = id_localN) THEN
+		RAISE 'Le local nexiste pas';
+	END IF;
+	IF NOT EXISTS(SELECT * FROM projet.examens e
+					WHERE e.code_examen = code_examenN) THEN
+		RAISE 'L examen nexiste pas';
+	END IF;
+	INSERT INTO projet.locaux_examens VALUES (id_localN,code_examenN);
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
