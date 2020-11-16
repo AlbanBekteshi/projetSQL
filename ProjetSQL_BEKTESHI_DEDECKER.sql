@@ -131,3 +131,21 @@ BEGIN
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
+
+--faire les tests
+
+CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS VOID AS $$
+DECLARE
+BEGIN
+	IF NOT EXISTS(SELECT * FROM projet.examens e
+					WHERE e.code_examen = code_examenN) THEN
+		RAISE 'L examen nexiste pas';
+	END IF;
+	IF NOT EXISTS(SELECT * FROM projet.utilisateurs u
+					WHERE u.id_utilisateur = id_utilisateurN) THEN
+		RAISE 'L utilisateur nexiste pas';
+	END IF;
+	INSERT INTO projet.inscriptions_examens(code_examenN,id_utilisateurN);
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
