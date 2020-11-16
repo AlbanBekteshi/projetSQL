@@ -54,21 +54,27 @@ CREATE TABLE projet.locaux_examens (
 	PRIMARY KEY (id_local,code_examen)
 );
 
-
 /*
-INSERT
+INSERTS
 */
 
 INSERT INTO projet.formations (nom, ecole) 
 	VALUES ('Test Formation','IPL');
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 	VALUES(DEFAULT,'2BIN',1);
+--SELECT projet.ajouterLocal('2b1',5,'o');
+--SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
+--SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'2020-08-25','e');
+--SELECT projet.ajoutLocauxExamens('2b1','IPL123');
+--SELECT projet.ajouterInscriptionExamen('IPL123',1);
+
 	
+/*
+FUNCTIONS
+*/
 
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
-
 DECLARE -- Faut-il obligatoirement le mettre ? 
-
 BEGIN
 	IF(capacite<=0) THEN 
 		RAISE 'Capacité doit être > que 0'; -- Lance une erreur ? 
@@ -80,8 +86,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---SELECT projet.ajouterLocal('2b1',5,'o');
---SELECT * FROM projet.locaux;
 
 
 CREATE OR REPLACE FUNCTION projet.inscriptionUtilisateur(nom_utilisateur VARCHAR(100), email VARCHAR(100), mot_de_passe VARCHAR(100), id_blocN INTEGER) RETURNS VOID AS $$
@@ -97,8 +101,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
---SELECT * FROM projet.utilisateurs;
+
 
 CREATE OR REPLACE FUNCTION projet.ajoutExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, date timestamp, support CHAR(1)) RETURNS VOID AS $$
 DECLARE
@@ -113,8 +116,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'2020-08-25','e');
---SELECT * FROM projet.examens;
+
 
 CREATE OR REPLACE FUNCTION projet.ajoutLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
 DECLARE
@@ -132,7 +134,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---faire les tests
+
 
 CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS VOID AS $$
 DECLARE
