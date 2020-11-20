@@ -32,7 +32,7 @@ CREATE TABLE projet.examens(
 	nom VARCHAR(100) NOT NULL CHECK(nom<>''),
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL,
 	duree INTEGER NOT NULL CHECK (duree>=0), 
-	date timestamp without time zone NOT NULL,
+	date timestamp without time zone,
 	support CHAR(1) NOT NULL CHECK (support='m' OR support='e')
 );
 
@@ -59,15 +59,14 @@ INSERTS
 */
 
 INSERT INTO projet.formations (nom, ecole) 
-	VALUES ('Test Formation','IPL');
+	VALUES ('Bachelier en Informatique de Gestion','IPL');
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 	VALUES(DEFAULT,'2BIN',1);
 --SELECT projet.ajouterLocal('2b1',5,'o');
 --SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
---SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'2020-08-25','e');
+--SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'e');
 --SELECT projet.ajoutLocauxExamens('2b1','IPL123');
 --SELECT projet.ajouterInscriptionExamen('IPL123',1);
-
 	
 /*
 FUNCTIONS
@@ -103,15 +102,15 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION projet.ajoutExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, date timestamp, support CHAR(1)) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION projet.ajoutExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, support CHAR(1)) RETURNS VOID AS $$
 DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.blocs b 
 					WHERE b.id_bloc=id_blocN) THEN	
 		RAISE 'Le bloc nexiste pas';
 	END IF;
-	INSERT INTO projet.Examens(code_examen,nom,id_bloc,duree,date,support) 
-		VALUES(code_examen,nom,id_blocN,duree,date,support);
+	INSERT INTO projet.Examens(code_examen,nom,id_bloc,duree,support) 
+		VALUES(code_examen,nom,id_blocN,duree,support);
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
@@ -151,3 +150,4 @@ BEGIN
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
+
