@@ -151,3 +151,32 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+
+CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),date timestamp) RETURNS BOOLEAN AS $$
+DECLARE
+BEGIN
+	--Vérifier si date est sur autre examen
+	--TODO
+
+	IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
+	--Examen avec date
+		--UPDATE(modify date);
+	END IF;
+	
+	--Examen sans date
+		--UPDATE (modify NULL)
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION projet.verificationChevauchement(code_examenN CHARACTER(6), date timestamp) RETURNS BOOLEAN AS $$
+DECLARE
+	id_bloc INTEGER;
+BEGIN
+	--sélection du bloc de l'examen
+	SELECT e.id_bloc FROM projet.examens WHERE code_examenN=code_examen INTO id_bloc;
+	
+END;
+$$ LANGUAGE plpgsql;
