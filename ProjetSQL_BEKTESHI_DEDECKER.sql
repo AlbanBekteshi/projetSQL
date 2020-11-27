@@ -14,7 +14,7 @@ CREATE TABLE projet.formations (
 CREATE TABLE projet.blocs (
 	id_bloc SERIAL PRIMARY KEY,
 	code_bloc CHARACTER(4)
-		CHECK(code_bloc SIMILAR TO '[0-9]BIN'),
+		CHECK(code_bloc SIMILAR TO 'Bloc [0-9]'),
 	id_formation INTEGER REFERENCES projet.formations (id_formation) NOT NULL
 );
 
@@ -61,7 +61,26 @@ INSERTS
 INSERT INTO projet.formations (nom, ecole) 
 	VALUES ('Bachelier en Informatique de Gestion','IPL');
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
-	VALUES(DEFAULT,'2BIN',1);
+	VALUES (DEFAULT,'Bloc 1',1);
+INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
+	VALUES (DEFAULT,'Bloc 2',2);
+INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
+	VALUES ('IPL100','APOO',1,2,'e');
+INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
+	VALUES ('IPL150','ALGO',1,1,'m');
+INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
+	VALUES ('IPL200','JAVASCRIPT',2,2,'m');
+INSERT INTO projet.locaux (id_local,capacite,machine)
+	VALUES ('A017',2,'o');
+INSERT INTO projet.locaux (id_local,capacite,machine)
+	VALUES ('A019',1,'o');
+INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
+INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+	VALUES (DEFAULT,'Ferneeuw','Ferneeuw@email.be','FerneeuxCode',2);
+INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+	VALUES (DEFAULT,'Cambron','Cambron@email.be','CambronCode',2);
+
 --SELECT projet.ajouterLocal('2b1',5,'o');
 --SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
 --SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'e');
@@ -76,8 +95,7 @@ CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite IN
 DECLARE -- Faut-il obligatoirement le mettre ? 
 BEGIN
 	IF(capacite<=0) THEN 
-		RAISE 'Capacité doit être > que 0'; -- Lance une erreur ? 
-											-- Rajouté un if pour machine ? 
+		RAISE 'Capacité doit être > que 0'; 
 	END IF;
 	INSERT INTO projet.locaux VALUES
 		(id_local,capacite,machine);
@@ -146,6 +164,10 @@ BEGIN
 					WHERE u.id_utilisateur = id_utilisateurN) THEN
 		RAISE 'L utilisateur nexiste pas';
 	END IF;
+	IF EXISTS (SELECT date FROM projet.examens e 				-- a Tester !!
+				WHERE e.code_examen = code_examenN) THEN
+		RAISE 'Date d examen déjà declare'
+	END IF;
 	INSERT INTO projet.inscriptions_examens VALUES(code_examenN,id_utilisateurN);
 	RETURN;
 END;
@@ -153,19 +175,20 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),date timestamp) RETURNS BOOLEAN AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),dateN timestamp) RETURNS BOOLEAN AS $$
 DECLARE
 BEGIN
 	--Vérifier si date est sur autre examen
 	--TODO
-
+	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
+					WHERE i.code_examen = code_examenN) THEN
+		RAISE 'Pas d etudiant Inscrit'
 	IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
 	--Examen avec date
 		--UPDATE(modify date);
 	END IF;
-	
-	--Examen sans date
-		--UPDATE (modify NULL)
+	UPDATE projet.examens SET date=dateN WHERE code_examenN = code_examen;
+	RETURN;
 END;
 $$ LANGUAGE plpgsql;
 
