@@ -13,7 +13,7 @@ CREATE TABLE projet.formations (
 
 CREATE TABLE projet.blocs (
 	id_bloc SERIAL PRIMARY KEY,
-	code_bloc CHARACTER(4)
+	code_bloc CHARACTER(6)
 		CHECK(code_bloc SIMILAR TO 'Bloc [0-9]'),
 	id_formation INTEGER REFERENCES projet.formations (id_formation) NOT NULL
 );
@@ -63,7 +63,7 @@ INSERT INTO projet.formations (nom, ecole)
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 	VALUES (DEFAULT,'Bloc 1',1);
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
-	VALUES (DEFAULT,'Bloc 2',2);
+	VALUES (DEFAULT,'Bloc 2',1);
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 	VALUES ('IPL100','APOO',1,2,'e');
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
