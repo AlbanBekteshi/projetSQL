@@ -115,20 +115,25 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION projet.ajouterLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
 DECLARE
 BEGIN
+	IF EXISTS (SELECT e.date FROM projet.examens e 
+					WHERE code_examenN = e.code_examen AND e.date IS NULL) THEN
+		RAISE 'Heure du debut pas encore fixer';										-- Reussi
+	END IF;
 	IF NOT EXISTS(SELECT * FROM projet.locaux l
 					WHERE l.id_local = id_localN) THEN
-		RAISE 'Le local nexiste pas';
+		RAISE 'Le local nexiste pas';													-- Reussi
 	END IF;
 	IF NOT EXISTS(SELECT * FROM projet.examens e
 					WHERE e.code_examen = code_examenN) THEN
-		RAISE 'L examen nexiste pas';
+		RAISE 'L examen nexiste pas';													-- Reussi
 	END IF;
 	IF ((SELECT support FROM projet.examens e 
 				WHERE e.code_examen=code_examenN) = 'm') THEN
 		IF((SELECT machine FROM projet.locaux l WHERE l.id_local=id_localN)='n') THEN
-			RAISE 'Pas de machines dispo dans le local';
+			RAISE 'Pas de machines dispo dans le local';								-- Reussi
 		END IF;
 	END IF;
+	-- Si l’examen est déjà complètement réservé. ????
 	INSERT INTO projet.locaux_examens VALUES (id_localN,code_examenN);
 	RETURN;
 END;
@@ -223,5 +228,5 @@ INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_pass
 	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
 
 SELECT projet.ajouterInscriptionExamen ('IPL100',1);
-SELECT projet.ajouterDateExamen('IPL100','2020-11-28');
+--SELECT projet.ajouterDateExamen('IPL100','2020-11-28');
 SELECT projet.ajouterLocauxExamens('A017','IPL150');
