@@ -135,15 +135,15 @@ DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.examens e
 					WHERE e.code_examen = code_examenN) THEN
-		RAISE 'L examen nexiste pas';
+		RAISE 'L examen nexiste pas';														-- Reussi
 	END IF;
 	IF NOT EXISTS(SELECT * FROM projet.utilisateurs u
 					WHERE u.id_utilisateur = id_utilisateurN) THEN
-		RAISE 'L utilisateur nexiste pas';
+		RAISE 'L utilisateur nexiste pas';													-- Reussi
 	END IF;
-	IF EXISTS (SELECT date FROM projet.examens e 				-- a Tester !!
-				WHERE e.code_examen = code_examenN) THEN
-		RAISE 'Date d examen déjà declare';
+	IF EXISTS (SELECT date FROM projet.examens e 										
+				WHERE e.code_examen = code_examenN AND e.date IS NOT NULL) THEN
+		RAISE 'Date d examen déjà declare';													--REUSSI
 	END IF;
 	INSERT INTO projet.inscriptions_examens VALUES(code_examenN,id_utilisateurN);
 	RETURN;
@@ -160,9 +160,19 @@ BEGIN
 	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
 					WHERE i.code_examen = code_examenN) THEN
 		RAISE 'Pas d etudiant Inscrit';
+
 	--IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
 	--Examen avec date
 		--UPDATE(modify date);
+
+
+				-- A rergarder si cas existe déjà dans les videos
+	--END IF;
+	--IF EXISTS (SELECT date FROM projet.examens e
+	--			WHERE e.code_examen = code_examenN AND e.id_bloc = (SELECT id_bloc FROM projet.examens e WHERE e.code_examen = code_examenN)) THEN
+	--	RAISE 'déjà un exam ce jour la ';
+
+	
 	END IF;
 	UPDATE projet.examens SET date=dateN WHERE code_examenN = code_examen;
 	RETURN TRUE;
@@ -185,5 +195,25 @@ $$ LANGUAGE plpgsql;
  DEMO
 */
 
-SELECT projet.ajouterLocal('A024',1,'o');
-SELECT projet.ajouterExamen('IPL250','SQL',1,240,'m');
+--SELECT projet.ajouterLocal('A024',1,'o');
+--SELECT projet.ajouterExamen('IPL250','SQL',1,240,'m');
+INSERT INTO projet.formations (nom, ecole) 
+	VALUES ('Bachelier en Informatique de Gestion','IPL');
+INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
+	VALUES (DEFAULT,'Bloc 1',1);
+INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
+	VALUES (DEFAULT,'Bloc 2',1);
+INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
+	VALUES ('IPL100','APOO',1,120,'e');
+INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,date,support)
+	VALUES ('IPL150','ALGO',1,60,'2020-11-28','m');
+INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
+	VALUES ('IPL200','JAVASCRIPT',2,120,'m');
+INSERT INTO projet.locaux (id_local,capacite,machine)
+	VALUES ('A017',2,'o');
+INSERT INTO projet.locaux (id_local,capacite,machine)
+	VALUES ('A019',1,'o');
+INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
+SELECT projet.ajouterInscriptionExamen ('IPL100',1);
+SELECT projet.ajouterDateExamen('IPL100','2020-11-28');
