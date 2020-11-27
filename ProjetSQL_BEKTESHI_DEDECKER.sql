@@ -72,7 +72,7 @@ CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite IN
 DECLARE -- Faut-il obligatoirement le mettre ? 
 BEGIN
 	IF(capacite<=0) THEN 
-		RAISE 'Capacité doit être > que 0'; 
+		RAISE 'Capacité doit être > que 0'; 											-- Reussi
 	END IF;
 	INSERT INTO projet.locaux VALUES
 		(id_local,capacite,machine);
@@ -87,7 +87,7 @@ DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.blocs b
 				WHERE b.id_bloc =id_blocN) THEN
-		RAISE 'Bloc invalide';
+		RAISE 'Bloc invalide';															-- Reussi
 	END IF;
     INSERT INTO projet.utilisateurs 
         VALUES(DEFAULT,nom_utilisateur,email,mot_de_passe,id_blocN);
@@ -102,7 +102,7 @@ DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.blocs b 
 					WHERE b.id_bloc=id_blocN) THEN	
-		RAISE 'Le bloc nexiste pas';
+		RAISE 'Le bloc nexiste pas';													-- Reussi
 	END IF;
 	INSERT INTO projet.Examens(code_examen,nom,id_bloc,duree,support) 
 		VALUES(code_examen,nom,id_blocN,duree,support);
@@ -154,7 +154,7 @@ BEGIN
 	END IF;
 	IF EXISTS (SELECT date FROM projet.examens e 										
 				WHERE e.code_examen = code_examenN AND e.date IS NOT NULL) THEN
-		RAISE 'Date d examen déjà declare';													--REUSSI
+		RAISE 'Date d examen déjà declare';													-- Reussi
 	END IF;
 	INSERT INTO projet.inscriptions_examens VALUES(code_examenN,id_utilisateurN);
 	RETURN;
@@ -227,6 +227,9 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
 	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
 
-SELECT projet.ajouterInscriptionExamen ('IPL100',1);
+--SELECT projet.ajouterLocal('A055',5,'o');
+--SELECT projet.inscriptionUtilisateur('marc','marc@email.com','marcCode',2);
+--SELECT projet.ajouterExamen('IPL250','SQL',1,120,'m');
+--SELECT projet.ajouterInscriptionExamen ('IPL100',1);
 --SELECT projet.ajouterDateExamen('IPL100','2020-11-28');
-SELECT projet.ajouterLocauxExamens('A017','IPL150');
+--SELECT projet.ajouterLocauxExamens('A017','IPL150');
