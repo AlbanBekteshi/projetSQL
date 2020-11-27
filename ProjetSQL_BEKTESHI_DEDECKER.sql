@@ -13,7 +13,7 @@ CREATE TABLE projet.formations (
 
 CREATE TABLE projet.blocs (
 	id_bloc SERIAL PRIMARY KEY,
-	code_bloc CHARACTER(4)
+	code_bloc CHARACTER(6)
 		CHECK(code_bloc SIMILAR TO 'Bloc [0-9]'),
 	id_formation INTEGER REFERENCES projet.formations (id_formation) NOT NULL
 );
@@ -63,7 +63,7 @@ INSERT INTO projet.formations (nom, ecole)
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 	VALUES (DEFAULT,'Bloc 1',1);
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
-	VALUES (DEFAULT,'Bloc 2',2);
+	VALUES (DEFAULT,'Bloc 2',1);
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 	VALUES ('IPL100','APOO',1,2,'e');
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
@@ -166,7 +166,7 @@ BEGIN
 	END IF;
 	IF EXISTS (SELECT date FROM projet.examens e 				-- a Tester !!
 				WHERE e.code_examen = code_examenN) THEN
-		RAISE 'Date d examen déjà declare'
+		RAISE 'Date d examen déjà declare';
 	END IF;
 	INSERT INTO projet.inscriptions_examens VALUES(code_examenN,id_utilisateurN);
 	RETURN;
@@ -182,13 +182,13 @@ BEGIN
 	--TODO
 	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
 					WHERE i.code_examen = code_examenN) THEN
-		RAISE 'Pas d etudiant Inscrit'
-	IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
+		RAISE 'Pas d etudiant Inscrit';
+	--IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
 	--Examen avec date
 		--UPDATE(modify date);
 	END IF;
 	UPDATE projet.examens SET date=dateN WHERE code_examenN = code_examen;
-	RETURN;
+	RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
 
