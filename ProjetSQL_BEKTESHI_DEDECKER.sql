@@ -123,6 +123,12 @@ BEGIN
 					WHERE e.code_examen = code_examenN) THEN
 		RAISE 'L examen nexiste pas';
 	END IF;
+	IF ((SELECT support FROM projet.examens e 
+				WHERE e.code_examen=code_examenN) = 'm') THEN
+		IF((SELECT machine FROM projet.locaux l WHERE l.id_local=id_localN)='n') THEN
+			RAISE 'Pas de machines dispo dans le local';
+		END IF;
+	END IF;
 	INSERT INTO projet.locaux_examens VALUES (id_localN,code_examenN);
 	RETURN;
 END;
@@ -215,5 +221,7 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A019',1,'o');
 INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
 	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
+
 SELECT projet.ajouterInscriptionExamen ('IPL100',1);
 SELECT projet.ajouterDateExamen('IPL100','2020-11-28');
+SELECT projet.ajouterLocauxExamens('A017','IPL150');
