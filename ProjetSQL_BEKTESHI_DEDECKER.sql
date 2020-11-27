@@ -58,29 +58,6 @@ CREATE TABLE projet.locaux_examens (
 INSERTS
 */
 
-INSERT INTO projet.formations (nom, ecole) 
-	VALUES ('Bachelier en Informatique de Gestion','IPL');
-INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
-	VALUES (DEFAULT,'Bloc 1',1);
-INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
-	VALUES (DEFAULT,'Bloc 2',1);
-INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
-	VALUES ('IPL100','APOO',1,2,'e');
-INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
-	VALUES ('IPL150','ALGO',1,1,'m');
-INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
-	VALUES ('IPL200','JAVASCRIPT',2,2,'m');
-INSERT INTO projet.locaux (id_local,capacite,machine)
-	VALUES ('A017',2,'o');
-INSERT INTO projet.locaux (id_local,capacite,machine)
-	VALUES ('A019',1,'o');
-INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
-INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Ferneeuw','Ferneeuw@email.be','FerneeuxCode',2);
-INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Cambron','Cambron@email.be','CambronCode',2);
-
 --SELECT projet.ajouterLocal('2b1',5,'o');
 --SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
 --SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'e');
@@ -120,7 +97,7 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION projet.ajoutExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, support CHAR(1)) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, support CHAR(1)) RETURNS VOID AS $$
 DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.blocs b 
@@ -135,7 +112,7 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION projet.ajoutLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
 DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.locaux l
@@ -203,3 +180,10 @@ BEGIN
 	
 END;
 $$ LANGUAGE plpgsql;
+
+/*
+ DEMO
+*/
+
+SELECT projet.ajouterLocal('A024',1,'o');
+SELECT projet.ajouterExamen('IPL250','SQL',1,240,'m');
