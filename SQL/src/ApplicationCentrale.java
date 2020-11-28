@@ -12,6 +12,7 @@ public class ApplicationCentrale {
 	private Connection conn = null;
 	private PreparedStatement ajouterLocal;
 	private PreparedStatement ajouterExamen;
+	private PreparedStatement ajouterLocauxExamens;
 	private final static Scanner sc = new Scanner(System.in);
 	
 	
@@ -63,6 +64,7 @@ public class ApplicationCentrale {
 		try {
 			ajouterLocal = conn.prepareStatement("SELECT * FROM projet.ajouterLocal(?,?,?);");
 			ajouterExamen = conn.prepareStatement("SELECT * FROM projet.ajouterExamen(?,?,?,?,?);");
+			ajouterLocauxExamens = conn.prepareStatement("SELECT * FROM projet.ajouterLocauxExamens(?,?);");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -88,7 +90,11 @@ public class ApplicationCentrale {
 			System.out.println("Ajouter Examen\n");
 			app.ajouterExamen();
 			break;
-
+		case 3:
+			System.out.println("Ajouter Locaux pour examen");
+			app.ajouterLocauxExamens();
+			break;
+			
 		default:
 			System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
 			break;
@@ -108,7 +114,7 @@ public class ApplicationCentrale {
 		System.out.println("Entrez l'action que vous voulez executer :\n");
 		System.out.println("1: Ajouter local");
 		System.out.println("2: Ajouter Examen");
-		
+		System.out.println("3: Ajouter un local pour un Examen");
 		
 		int action = 0;
 		
@@ -119,6 +125,25 @@ public class ApplicationCentrale {
 		return action;
 	}
 	
+	
+	
+	
+	private void ajouterLocal() {
+		System.out.println("Entrez le nom du local ");
+		String nomLocal = sc.next();
+		System.out.println("Entrez le nombre de place dans le local");
+		int quantitePlace = sc.nextInt();
+		System.out.println("Le local dispose-t-il de machines ? \nOui => o\nNon=> n");
+		char machineDispo = sc.next().charAt(0);
+		try {
+			ajouterLocal.setString(1, nomLocal);
+			ajouterLocal.setInt(2, quantitePlace);
+			ajouterLocal.setString(3, String.valueOf(machineDispo));
+			ajouterLocal.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
+	}
 	
 	private void ajouterExamen() {
 		System.out.println("Entrez le Code Examen sous format 'IPL[0-9][0-9][0-9]'");
@@ -143,19 +168,16 @@ public class ApplicationCentrale {
 		}
 	}
 	
-	private void ajouterLocal() {
+	private void ajouterLocauxExamens() {
 		System.out.println("Entrez le nom du local ");
 		String nomLocal = sc.next();
-		System.out.println("Entrez le nombre de place dans le local");
-		int quantitePlace = sc.nextInt();
-		System.out.println("Le local dispose-t-il de machines ? \nOui => o\nNon=> n");
-		char machineDispo = sc.next().charAt(0);
+		System.out.println("Entrez le Code Examen sous format 'IPL[0-9][0-9][0-9]'");
+		String code = sc.next();
 		try {
-			ajouterLocal.setString(1, nomLocal);
-			ajouterLocal.setInt(2, quantitePlace);
-			ajouterLocal.setString(3, String.valueOf(machineDispo));
-			ajouterLocal.executeQuery();
-		} catch (SQLException e) {
+			ajouterLocauxExamens.setString(1, nomLocal);
+			ajouterLocauxExamens.setString(2, code);
+			ajouterExamen.executeQuery();
+		} catch(SQLException e) {
 			System.out.println(e.getMessage().split("\n")[0]);
 		}
 	}
