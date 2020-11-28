@@ -219,8 +219,8 @@ INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 	VALUES (DEFAULT,'Bloc 2',1);
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 	VALUES ('IPL100','APOO',1,120,'e');
-INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,date,support)
-	VALUES ('IPL150','ALGO',1,60,'2020-11-28','m');
+INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
+	VALUES ('IPL150','ALGO',1,60,'m');
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 	VALUES ('IPL200','JAVASCRIPT',2,120,'m');
 INSERT INTO projet.locaux (id_local,capacite,machine)

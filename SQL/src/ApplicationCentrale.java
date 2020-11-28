@@ -4,7 +4,8 @@
  */
 
 import java.util.Scanner;
-import java.sql.*;	
+import java.sql.*;
+import java.sql.Date;
 
 public class ApplicationCentrale {
 	
@@ -13,6 +14,7 @@ public class ApplicationCentrale {
 	private PreparedStatement ajouterLocal;
 	private PreparedStatement ajouterExamen;
 	private PreparedStatement ajouterLocauxExamens;
+	private PreparedStatement ajouterDateExamen;
 	private final static Scanner sc = new Scanner(System.in);
 	
 	
@@ -65,6 +67,7 @@ public class ApplicationCentrale {
 			ajouterLocal = conn.prepareStatement("SELECT * FROM projet.ajouterLocal(?,?,?);");
 			ajouterExamen = conn.prepareStatement("SELECT * FROM projet.ajouterExamen(?,?,?,?,?);");
 			ajouterLocauxExamens = conn.prepareStatement("SELECT * FROM projet.ajouterLocauxExamens(?,?);");
+			ajouterDateExamen = conn.prepareStatement("SELECT * FROM projet.ajouterDateExamen(?,?);");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -94,6 +97,10 @@ public class ApplicationCentrale {
 			System.out.println("Ajouter Locaux pour examen");
 			app.ajouterLocauxExamens();
 			break;
+		case 4:
+			System.out.println("Ajouter La Date a un examen");
+			app.ajouterDateExamen();
+			break;
 			
 		default:
 			System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
@@ -107,6 +114,8 @@ public class ApplicationCentrale {
 	
 	
 
+	
+
 	/*
 	 * @return int numéro de l'action que user souhaite executer
 	 */
@@ -115,6 +124,7 @@ public class ApplicationCentrale {
 		System.out.println("1: Ajouter local");
 		System.out.println("2: Ajouter Examen");
 		System.out.println("3: Ajouter un local pour un Examen");
+		System.out.println("4: Ajouter la date a un Examen");
 		
 		int action = 0;
 		
@@ -180,6 +190,21 @@ public class ApplicationCentrale {
 		} catch(SQLException e) {
 			System.out.println(e.getMessage().split("\n")[0]);
 		}
+	}
+	
+	private void ajouterDateExamen() {
+		System.out.println("Entrez le Code Examen sous format 'IPL[0-9][0-9][0-9]'");
+		String code = sc.next();
+		System.out.println("Entrez la date sous format'aaaa-mm-jj'");
+		String dateString = sc.next();
+		Date date = Date.valueOf(dateString);
+		try {
+			ajouterDateExamen.setString(1, code);
+			ajouterDateExamen.setDate(2, date);
+			ajouterDateExamen.executeQuery();
+		}catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}	
 	}
 }
 
