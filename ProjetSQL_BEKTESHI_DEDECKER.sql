@@ -68,6 +68,7 @@ INSERTS
 FUNCTIONS
 */
 
+--Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
 DECLARE -- Faut-il obligatoirement le mettre ? 
 BEGIN
@@ -79,6 +80,8 @@ BEGIN
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
+
+
 
 
 
@@ -96,7 +99,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
+--Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, support CHAR(1)) RETURNS VOID AS $$
 DECLARE
 BEGIN

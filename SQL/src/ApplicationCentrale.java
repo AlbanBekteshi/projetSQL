@@ -11,15 +11,12 @@ public class ApplicationCentrale {
 	private String url = "jdbc:postgresql://localhost:5432/ProjetSQL?user=postgres&password=9797";
 	private Connection conn = null;
 	private PreparedStatement ajouterLocal;
+	private PreparedStatement ajouterExamen;
 	private final static Scanner sc = new Scanner(System.in);
 	
 	
 	public ApplicationCentrale() {
-		this.conn= this.initConnection();
-		
-		
-		
-		
+		this.conn= this.initConnection();	
 		//Test d'un insert OK
 //		try {
 //			Statement s = conn.createStatement();
@@ -30,8 +27,6 @@ public class ApplicationCentrale {
 //			se.printStackTrace();
 //			System.exit(1);
 //		}
-		
-		
 		// Test d'un Select
 //		try {
 //			Statement s = conn.createStatement();
@@ -44,10 +39,9 @@ public class ApplicationCentrale {
 //		} catch (SQLException se) {
 //			se.printStackTrace();
 //			System.exit(1);
-//		}
-		
-			
+//		}		
 	}
+	
 	/*
 	 * @return Connection connexion au serveur si aucune erreur
 	 */
@@ -68,6 +62,7 @@ public class ApplicationCentrale {
 		}
 		try {
 			ajouterLocal = conn.prepareStatement("SELECT * FROM projet.ajouterLocal(?,?,?);");
+			ajouterExamen = conn.prepareStatement("SELECT * FROM projet.ajouterExamen(?,?,?,?,?);");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -89,6 +84,10 @@ public class ApplicationCentrale {
 			System.out.println("Ajouter Local\n");
 			app.ajouterLocal();
 			break;
+		case 2:
+			System.out.println("Ajouter Examen\n");
+			app.ajouterExamen();
+			break;
 
 		default:
 			System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
@@ -100,12 +99,16 @@ public class ApplicationCentrale {
 	
 	
 	
+	
+
 	/*
 	 * @return int numéro de l'action que user souhaite executer
 	 */
 	private int choixActionMenu() {
 		System.out.println("Entrez l'action que vous voulez executer :\n");
 		System.out.println("1: Ajouter local");
+		System.out.println("2: Ajouter Examen");
+		
 		
 		int action = 0;
 		
@@ -117,7 +120,28 @@ public class ApplicationCentrale {
 	}
 	
 	
-	
+	private void ajouterExamen() {
+		System.out.println("Entrez le Code Examen sous format 'IPL[0-9][0-9][0-9]'");
+		String code = sc.next();
+		System.out.println("Entrez le nom de l'examen");
+		String nom = sc.next();
+		System.out.println("Entrez le bloc");
+		int bloc = sc.nextInt();
+		System.out.println("Entrez la durée en minute");
+		int duree = sc.nextInt();
+		System.out.println("L'examen est-t-il sur machines ou écrit? \nMachine => m\nEcrit=> e");
+		char type = sc.next().charAt(0);
+		try {
+			ajouterExamen.setString(1, code);
+			ajouterExamen.setString(2, nom);
+			ajouterExamen.setInt(3, bloc);
+			ajouterExamen.setInt(4, duree);
+			ajouterExamen.setString(5, String.valueOf(type));
+			ajouterExamen.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
+	}
 	
 	private void ajouterLocal() {
 		System.out.println("Entrez le nom du local ");
