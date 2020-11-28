@@ -81,39 +81,37 @@ public class ApplicationCentrale {
 		ApplicationCentrale app = new ApplicationCentrale();
 		System.out.println("Bienvenue sur l'application centrale !");
 		System.out.println("--------------------------------------\n");
-		
-		int action = app.choixActionMenu();
-		
-		switch (action) {
-		case 1:
-			System.out.println("Ajouter Local\n");
-			app.ajouterLocal();
-			break;
-		case 2:
-			System.out.println("Ajouter Examen\n");
-			app.ajouterExamen();
-			break;
-		case 3:
-			System.out.println("Ajouter Locaux pour examen");
-			app.ajouterLocauxExamens();
-			break;
-		case 4:
-			System.out.println("Ajouter La Date a un examen");
-			app.ajouterDateExamen();
-			break;
+		int action;
+		do {
+			action = app.choixActionMenu();
 			
-		default:
-			System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
-			break;
-		}
+			switch (action) {
+			case 1:
+				System.out.println("Ajouter Local\n");
+				app.ajouterLocal();
+				break;
+			case 2:
+				System.out.println("Ajouter Examen\n");
+				app.ajouterExamen();
+				break;
+			case 3:
+				System.out.println("Ajouter Locaux pour examen");
+				app.ajouterLocauxExamens();
+				break;
+			case 4:
+				System.out.println("Ajouter La Date a un examen");
+				app.ajouterDateExamen();
+				break;
+				
+			default:
+				System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
+				break;
+			}
+		}while(action >=1 && action <= 4);
+		
 	}
 	
 	
-	
-	
-	
-	
-
 	
 
 	/*
@@ -195,12 +193,14 @@ public class ApplicationCentrale {
 	private void ajouterDateExamen() {
 		System.out.println("Entrez le Code Examen sous format 'IPL[0-9][0-9][0-9]'");
 		String code = sc.next();
-		System.out.println("Entrez la date sous format'aaaa-mm-jj'");
-		String dateString = sc.next();
-		Date date = Date.valueOf(dateString);
+		System.out.println("Entrez la date sous format'aaaa-mm-jj hh:mm:ss'");
+		sc.nextLine();
+		String dateString = sc.nextLine();
+		Timestamp date = Timestamp.valueOf(dateString);
+		System.out.println(date);
 		try {
 			ajouterDateExamen.setString(1, code);
-			ajouterDateExamen.setDate(2, date);
+			ajouterDateExamen.setTimestamp(2, date);
 			ajouterDateExamen.executeQuery();
 		}catch(SQLException e) {
 			System.out.println(e.getMessage().split("\n")[0]);

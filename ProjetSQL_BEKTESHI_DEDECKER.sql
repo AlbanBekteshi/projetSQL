@@ -165,7 +165,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
+--Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),dateN timestamp) RETURNS BOOLEAN AS $$
 DECLARE
 BEGIN
@@ -209,8 +209,6 @@ $$ LANGUAGE plpgsql;
  DEMO
 */
 
---SELECT projet.ajouterLocal('A024',1,'o');
---SELECT projet.ajouterExamen('IPL250','SQL',1,240,'m');
 INSERT INTO projet.formations (nom, ecole) 
 	VALUES ('Bachelier en Informatique de Gestion','IPL');
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
