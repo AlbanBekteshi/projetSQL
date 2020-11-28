@@ -2,8 +2,41 @@ import java.sql.DriverManager;
 import java.sql.*;	
 
 public class main {
-
 	public static void main(String args[]) {
+		
+		Connection conn = initConnection();
+		System.out.println(conn);
+		
+		//Test d'un insert OK
+//		try {
+//			Statement s = conn.createStatement();
+//			
+//			s.executeUpdate("INSERT INTO projet.utilisateurs VALUES (DEFAULT,'test','test','test',1);");
+//		} catch(SQLException se) {
+//			System.out.println("Erreur insertion");
+//			se.printStackTrace();
+//			System.exit(1);
+//		}
+		
+		
+		// Test d'un Select
+		try {
+			Statement s = conn.createStatement();
+			try(ResultSet rs = s.executeQuery("SELECT nom_utilisateur "
+					+ "FROM projet.utilisateurs;")){
+				while(rs.next()) {
+					System.out.println(rs.getString(1));
+				}
+			}
+		} catch (SQLException se) {
+			se.printStackTrace();
+			System.exit(1);
+		}
+		
+		
+	}
+	
+	public static Connection initConnection() {
 		try {
 			Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e) {
@@ -18,34 +51,8 @@ public class main {
 			System.out.println("Impossible de joindre le server!");
 			System.exit(1);
 		}
-		
-		/* Test d'un insert OK
-		try {
-			Statement s = conn.createStatement();
-			
-			s.executeUpdate("INSERT INTO projet.utilisateurs VALUES (DEFAULT,'test','test','test',1);");
-		} catch(SQLException se) {
-			System.out.println("Erreur insertion");
-			se.printStackTrace();
-			System.exit(1);
-		}
-		*/
-		
-		/* Test d'un Select
-		try {
-			Statement s = conn.createStatement();
-			try(ResultSet rs = s.executeQuery("SELECT nom_utilisateur "
-					+ "FROM projet.utilisateurs;")){
-				while(rs.next()) {
-					System.out.println(rs.getString(1));
-				}
-			}
-		} catch (SQLException se) {
-			se.printStackTrace();
-			System.exit(1);
-		}
-		*/
-		
+		System.out.println("Connexion au serveur réussi !");
+		return conn;
 	}
 }
 
