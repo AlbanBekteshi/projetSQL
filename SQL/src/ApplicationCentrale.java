@@ -8,28 +8,18 @@ import java.sql.*;
 
 public class ApplicationCentrale {
 	
-	private Connection conn;
-	Scanner scanner = new Scanner(System.in);
+	private String url = "jdbc:postgresql://localhost:5432/ProjetSQL?user=postgres&password=9797";
+	private Connection conn = null;
+	private PreparedStatement ajouterLocal;
+	private final static Scanner sc = new Scanner(System.in);
+	
 	
 	public ApplicationCentrale() {
-		
 		this.conn= this.initConnection();
 		
-		System.out.println("Bienvenue sur l'application centrale !");
-		System.out.println("--------------------------------------\n");
 		
-		int action = choixActionMenu();
 		
-		switch (action) {
-		case 1:
-			System.out.println("Ajouter Local\n");
-			this.ajouterLocalForm();
-			break;
-
-		default:
-			System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
-			break;
-		}
+		
 		//Test d'un insert OK
 //		try {
 //			Statement s = conn.createStatement();
@@ -56,14 +46,8 @@ public class ApplicationCentrale {
 //			System.exit(1);
 //		}
 		
+			
 	}
-	
-	
-	public static void main(String args[]) {
-		ApplicationCentrale app = new ApplicationCentrale();
-	}
-	
-	
 	/*
 	 * @return Connection connexion au serveur si aucune erreur
 	 */
@@ -82,13 +66,42 @@ public class ApplicationCentrale {
 			System.out.println("Impossible de joindre le server!");
 			System.exit(1);
 		}
+		try {
+			ajouterLocal = conn.prepareStatement("SELECT * FROM projet.ajouterLocal(?,?,?);");
+		} catch (SQLException e) {
+			System.out.println("Erreur lors de la preparation des statement");
+			System.exit(1);
+		}
 		//System.out.println("Connexion au serveur reussi !");
 		return conn;
 	}
 	
 	
+	public static void main(String args[]) {
+		ApplicationCentrale app = new ApplicationCentrale();
+		System.out.println("Bienvenue sur l'application centrale !");
+		System.out.println("--------------------------------------\n");
+		
+		int action = app.choixActionMenu();
+		
+		switch (action) {
+		case 1:
+			System.out.println("Ajouter Local\n");
+			app.ajouterLocal();
+			break;
+
+		default:
+			System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
+			break;
+		}
+	}
+	
+	
+	
+	
+	
 	/*
-	 * @return int numÃ©ro de l'action que user souhaite executer
+	 * @return int numéro de l'action que user souhaite executer
 	 */
 	private int choixActionMenu() {
 		System.out.println("Entrez l'action que vous voulez executer :\n");
@@ -97,45 +110,30 @@ public class ApplicationCentrale {
 		int action = 0;
 		
 		do {			
-			action =scanner.nextInt();
+			action =sc.nextInt();
 		} while(action<=0 || action >8);
 
 		return action;
 	}
 	
 	
-	private void ajouterLocalForm() {
-		//max 10 char ex:('A025')
-		String nomLocal="";
-		
-		int quantitePlace=0;
-		
-		// oui => 'o' || non => 'n'
-		char machineDispo='a';
-		
-		System.out.println("Vous avez choisi d'ajouter un local\n");
-		
-		while(nomLocal.length()<=0 || nomLocal.length()>10) {
-			System.out.println("Entrez le nom du local (max 10 char)");
-			nomLocal = scanner.nextLine();
+	
+	
+	private void ajouterLocal() {
+		System.out.println("Entrez le nom du local ");
+		String nomLocal = sc.next();
+		System.out.println("Entrez le nombre de place dans le local");
+		int quantitePlace = sc.nextInt();
+		System.out.println("Le local dispose-t-il de machines ? \nOui => o\nNon=> n");
+		char machineDispo = sc.next().charAt(0);
+		try {
+			ajouterLocal.setString(1, nomLocal);
+			ajouterLocal.setInt(2, quantitePlace);
+			ajouterLocal.setString(3, String.valueOf(machineDispo));
+			ajouterLocal.executeQuery();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
 		}
-
-		while(quantitePlace<=0) {
-			System.out.println("Entrez le nombre de place dans le local");
-			quantitePlace = scanner.nextInt();
-		}
-		
-		while(machineDispo!='o' && machineDispo!='O' && machineDispo!='n' && machineDispo!='N') {
-			System.out.println("Le local dispose-t-il de machines ? \nOui => o\nNon=> n");
-			machineDispo = scanner.next().charAt(0);
-		}
-		System.out.println();
-		System.out.println("nomLocal : "+nomLocal);
-		System.out.println("quantitePlace : "+quantitePlace);
-		System.out.println("machineDispo : "+machineDispo);
-		
-		
-		
 	}
 }
 
