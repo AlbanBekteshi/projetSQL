@@ -197,7 +197,6 @@ public class ApplicationCentrale {
 		sc.nextLine();
 		String dateString = sc.nextLine();
 		Timestamp date = Timestamp.valueOf(dateString);
-		System.out.println(date);
 		try {
 			ajouterDateExamen.setString(1, code);
 			ajouterDateExamen.setTimestamp(2, date);
