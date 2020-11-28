@@ -1,10 +1,15 @@
-import java.sql.DriverManager;
+/*
+ * @author Alban Bekteshi
+ * @author Adrien de Decker
+ */
+
 import java.util.Scanner;
 import java.sql.*;	
 
 public class ApplicationCentrale {
 	
 	private Connection conn;
+	Scanner scanner = new Scanner(System.in);
 	
 	public ApplicationCentrale() {
 		
@@ -18,11 +23,11 @@ public class ApplicationCentrale {
 		switch (action) {
 		case 1:
 			System.out.println("Ajouter Local\n");
-			
+			this.ajouterLocalForm();
 			break;
 
 		default:
-			System.out.println("Erreur : Aucune action trouvee\n");
+			System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
 			break;
 		}
 		//Test d'un insert OK
@@ -57,6 +62,10 @@ public class ApplicationCentrale {
 		ApplicationCentrale app = new ApplicationCentrale();
 	}
 	
+	
+	/*
+	 * @return Connection connexion au serveur si aucune erreur
+	 */
 	private Connection initConnection() {
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -76,17 +85,52 @@ public class ApplicationCentrale {
 		return conn;
 	}
 	
+	/*
+	 * @return int numéro de l'action que user souhaite executer
+	 */
 	private int choixActionMenu() {
-		System.out.println("choixActionMenu\n");
-		Scanner scanner = new Scanner(System.in);
+		System.out.println("Entrez l'action que vous voulez executer :\n");
+		System.out.println("1: Ajouter local");
+		
 		int action = 0;
-		do {
-			
+		
+		do {			
 			action =scanner.nextInt();
 		} while(action<=0 || action >8);
-		System.out.println("input :"+action);
-		
+
 		return action;
+	}
+	
+	private void ajouterLocalForm() {
+		//max 10 char ex:('A025')
+		String nomLocal="";
+		
+		int quantitePlace=0;
+		
+		// oui => 'o' || non => 'n'
+		char machineDispo='a';
+		
+		System.out.println("Vous avez choisi d'ajouter un local\n");
+		
+		while(nomLocal.length()<=0 || nomLocal.length()>10) {
+			System.out.println("Entrez le nom du local (max 10 char)");
+			nomLocal = scanner.nextLine();
+		}
+
+		while(quantitePlace<=0) {
+			System.out.println("Entrez le nombre de place dans le local");
+			quantitePlace = scanner.nextInt();
+		}
+		
+		while(machineDispo!='o' && machineDispo!='O' && machineDispo!='n' && machineDispo!='N') {
+			System.out.println("Le local dispose-t-il de machines ? \nOui => o\nNon=> n");
+			machineDispo = scanner.next().charAt(0);
+		}
+		System.out.println();
+		System.out.println("nomLocal : "+nomLocal);
+		System.out.println("quantitePlace : "+quantitePlace);
+		System.out.println("machineDispo : "+machineDispo);
+		
 	}
 }
 
