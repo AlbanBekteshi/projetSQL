@@ -15,7 +15,7 @@ public class ApplicationCentrale {
 		
 		this.conn= this.initConnection();
 		
-		System.out.println("Bienvenue sur l'application centrale !\n");
+		System.out.println("Bienvenue sur l'application centrale !");
 		System.out.println("--------------------------------------\n");
 		
 		int action = choixActionMenu();
@@ -58,6 +58,7 @@ public class ApplicationCentrale {
 		
 	}
 	
+	
 	public static void main(String args[]) {
 		ApplicationCentrale app = new ApplicationCentrale();
 	}
@@ -85,6 +86,7 @@ public class ApplicationCentrale {
 		return conn;
 	}
 	
+	
 	/*
 	 * @return int numéro de l'action que user souhaite executer
 	 */
@@ -100,6 +102,7 @@ public class ApplicationCentrale {
 
 		return action;
 	}
+	
 	
 	private void ajouterLocalForm() {
 		//max 10 char ex:('A025')
@@ -130,6 +133,8 @@ public class ApplicationCentrale {
 		System.out.println("nomLocal : "+nomLocal);
 		System.out.println("quantitePlace : "+quantitePlace);
 		System.out.println("machineDispo : "+machineDispo);
+		
+		
 		
 	}
 }
