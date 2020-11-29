@@ -11,11 +11,13 @@ public class ApplicationUtilisateur {
 	private PreparedStatement ajouterUtilisateur;
 	private PreparedStatement connexion;
 	private PreparedStatement getPasswordFromUSername;
+	private PreparedStatement ajouterInscriptionExamen;
 	
 	
 	private Connection conn;
 	private final static Scanner scanner = new Scanner(System.in);
 	private boolean isConnected = false;
+	private int idUtilisateur;
 	private boolean stopped = false;
 	
 	public ApplicationUtilisateur() {
@@ -72,13 +74,43 @@ public class ApplicationUtilisateur {
 	}
 	
 	private void visualiserExamens() {
-		// TODO Auto-generated method stub
+		System.out.println("Voici la liste de tous les examens");
 		
+		try {
+			Statement s = conn.createStatement();
+			try(ResultSet rs = s.executeQuery("SELECT * FROM projet.examens")) {
+				while(rs.next()) {
+					String stringAAfficher ="";
+					stringAAfficher+= rs.getString("code_examen");
+					stringAAfficher+="\t";
+					stringAAfficher+=rs.getString("nom");
+					stringAAfficher+="\t";
+					stringAAfficher+=rs.getInt("id_bloc");
+					stringAAfficher+="\t";
+					stringAAfficher+=rs.getInt("duree");
+					System.out.println(stringAAfficher);
+				}
+			}
+		} catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
+		System.out.println();
 	}
 	
 	private void inscriptionExamen() {
-		// TODO Auto-generated method stub
+		System.out.println("Inscription a un examen :");
+		//visualiserExamens();
+		System.out.println("Entrez le code de l'examen auquel vous voulez vous inscrire :");
+		String codeExamen = scanner.next();
 		
+		try {
+			ajouterInscriptionExamen.setString(1, codeExamen);
+			ajouterInscriptionExamen.setInt(2, idUtilisateur);
+			ajouterInscriptionExamen.executeQuery();
+		} catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
+		System.out.println("fin inscriptionExamen()");
 	}
 
 	private void inscriptionTousExamensBloc() {
@@ -131,9 +163,10 @@ public class ApplicationUtilisateur {
 				
 		try {
 			Statement s = conn.createStatement();
-			try(ResultSet rs= s.executeQuery("SELECT mot_de_passe FROM projet.utilisateurs WHERE nom_utilisateur ='"+username+"';")){
+			try(ResultSet rs= s.executeQuery("SELECT mot_de_passe,id_utilisateur FROM projet.utilisateurs WHERE nom_utilisateur ='"+username+"';")){
 				while(rs.next()) {
-					hashedPassword = rs.getString(1);
+					hashedPassword = rs.getString("mot_de_passe");
+					idUtilisateur = rs.getInt("id_utilisateur");
 				}
 			}
 		} catch(SQLException e) {
@@ -146,10 +179,12 @@ public class ApplicationUtilisateur {
 				isConnected=true;
 			}
 			else {
+				idUtilisateur=0;
 				System.out.println("Nom d'utilisateur ou mot de passe incorrect !");
 			}
 		}
 		else {
+			idUtilisateur=0;
 			System.out.println("Nom d'utilisateur ou mot de passe incorrect !");
 		}
 		
@@ -180,6 +215,7 @@ public class ApplicationUtilisateur {
 			ajouterUtilisateur = conn.prepareStatement("SELECT * FROM projet.inscriptionUtilisateur(?,?,?,?);");
 			connexion = conn.prepareStatement("SELECT * FROM projet.connexion;");
 			getPasswordFromUSername = conn.prepareStatement("SELECT mot_de_passe FROM projet.utilisateurs WHERE nom_utilisateur = ?;");
+			ajouterInscriptionExamen = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamen(?,?);");
 		} catch(SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -205,7 +241,7 @@ public class ApplicationUtilisateur {
 	private int choixActionMenuConnecte() {
 		int action =0;
 		
-		System.out.println("Entrez l'action que vous voulez executer :\n");
+		System.out.println("Entrez l'action que vous voulez executer :");
 		System.out.println("1: Visualiser les examens");
 		System.out.println("2: S'inscrire a un examen");
 		System.out.println("3: S'inscrire a tous les examens du bloc");

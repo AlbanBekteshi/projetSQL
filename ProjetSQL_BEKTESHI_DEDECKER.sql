@@ -225,8 +225,8 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A017',2,'o');
 INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A019',1,'o');
-INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
+--INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+--	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
 
 --SELECT projet.ajouterLocal('A055',5,'o');
 --SELECT projet.inscriptionUtilisateur('marc','marc@email.com','marcCode',2);
