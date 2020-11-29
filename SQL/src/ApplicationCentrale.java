@@ -105,6 +105,7 @@ public class ApplicationCentrale {
 				
 			default:
 				System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
+				System.exit(1);
 				break;
 			}
 		}while(action >=1 && action <= 4);
@@ -115,7 +116,7 @@ public class ApplicationCentrale {
 	
 
 	/*
-	 * @return int numéro de l'action que user souhaite executer
+	 * @return int numï¿½ro de l'action que user souhaite executer
 	 */
 	private int choixActionMenu() {
 		System.out.println("Entrez l'action que vous voulez executer :\n");
@@ -160,9 +161,9 @@ public class ApplicationCentrale {
 		String nom = sc.next();
 		System.out.println("Entrez le bloc");
 		int bloc = sc.nextInt();
-		System.out.println("Entrez la durée en minute");
+		System.out.println("Entrez la durï¿½e en minute");
 		int duree = sc.nextInt();
-		System.out.println("L'examen est-t-il sur machines ou écrit? \nMachine => m\nEcrit=> e");
+		System.out.println("L'examen est-t-il sur machines ou ï¿½crit? \nMachine => m\nEcrit=> e");
 		char type = sc.next().charAt(0);
 		try {
 			ajouterExamen.setString(1, code);
