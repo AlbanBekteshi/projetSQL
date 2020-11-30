@@ -175,6 +175,10 @@ BEGIN
 					WHERE i.code_examen = code_examenN) THEN
 		RAISE 'Pas d etudiant Inscrit';
 
+	END IF;
+	IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
+				WHERE l.code_examen = code_examenN) THEN
+		RAISE 'Un local a déjà été réservé';
 	--IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
 	--Examen avec date
 		--UPDATE(modify date);

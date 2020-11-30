@@ -22,32 +22,7 @@ public class ApplicationCentrale {
 	
 	
 	public ApplicationCentrale() {
-		this.conn= this.initConnection();	
-		//Test d'un insert OK
-//		try {
-//			Statement s = conn.createStatement();
-//			
-//			s.executeUpdate("INSERT INTO projet.utilisateurs VALUES (DEFAULT,'test','test','test',1);");
-//		} catch(SQLException se) {
-//			System.out.println("Erreur insertion");
-//			se.printStackTrace();
-//			System.exit(1);
-//		}
-		
-		// Test d'un Select
-//		try {
-//			Statement s = conn.createStatement();
-//			try(ResultSet rs = s.executeQuery("SELECT e.code_examen, l.id_local "
-//					+ "FROM projet.examens e, projet.locaux_examen l"
-//					+ "WHERE e.id_bloc =1;")){
-//				while(rs.next()) {
-//					System.out.println(rs.getString(1) + rs.getString(2));
-//				}
-//			}
-//		} catch (SQLException se) {
-//			se.printStackTrace();
-//			System.exit(1);
-//		}		
+		this.conn= this.initConnection();		
 	}
 	
 	/*
