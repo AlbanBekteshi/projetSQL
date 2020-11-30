@@ -4,8 +4,10 @@
  */
 
 import java.util.Scanner;
+
+import javax.naming.spi.DirStateFactory.Result;
+
 import java.sql.*;
-import java.sql.Date;
 
 public class ApplicationCentrale {
 	
@@ -15,6 +17,7 @@ public class ApplicationCentrale {
 	private PreparedStatement ajouterExamen;
 	private PreparedStatement ajouterLocauxExamens;
 	private PreparedStatement ajouterDateExamen;
+	private PreparedStatement horaireExamenBloc;
 	private final static Scanner sc = new Scanner(System.in);
 	
 	
@@ -30,13 +33,15 @@ public class ApplicationCentrale {
 //			se.printStackTrace();
 //			System.exit(1);
 //		}
+		
 		// Test d'un Select
 //		try {
 //			Statement s = conn.createStatement();
-//			try(ResultSet rs = s.executeQuery("SELECT nom_utilisateur "
-//					+ "FROM projet.utilisateurs;")){
+//			try(ResultSet rs = s.executeQuery("SELECT e.code_examen, l.id_local "
+//					+ "FROM projet.examens e, projet.locaux_examen l"
+//					+ "WHERE e.id_bloc =1;")){
 //				while(rs.next()) {
-//					System.out.println(rs.getString(1));
+//					System.out.println(rs.getString(1) + rs.getString(2));
 //				}
 //			}
 //		} catch (SQLException se) {
@@ -68,6 +73,8 @@ public class ApplicationCentrale {
 			ajouterExamen = conn.prepareStatement("SELECT * FROM projet.ajouterExamen(?,?,?,?,?);");
 			ajouterLocauxExamens = conn.prepareStatement("SELECT * FROM projet.ajouterLocauxExamens(?,?);");
 			ajouterDateExamen = conn.prepareStatement("SELECT * FROM projet.ajouterDateExamen(?,?);");
+			horaireExamenBloc = conn.prepareStatement("SELECT e.code_examen, e.nom, e.date, COUNT(l.id_local) FROM projet.examens e,projet.locaux_examens l"
+					+ "WHERE e.code_examen = l.code_examen AND e.id_bloc = ? GROUP BY e.code_examen);");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -102,7 +109,10 @@ public class ApplicationCentrale {
 				System.out.println("Ajouter La Date a un examen");
 				app.ajouterDateExamen();
 				break;
-				
+			case 5:
+				System.out.println("Horaire Exam");
+				app.horaireExamenBloc();
+				break;
 			default:
 				System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
 				System.exit(1);
@@ -124,7 +134,7 @@ public class ApplicationCentrale {
 		System.out.println("2: Ajouter Examen");
 		System.out.println("3: Ajouter un local pour un Examen");
 		System.out.println("4: Ajouter la date a un Examen");
-		
+		System.out.println("5: Horaire Examen");
 		int action = 0;
 		
 		do {			
@@ -163,7 +173,7 @@ public class ApplicationCentrale {
 		int bloc = sc.nextInt();
 		System.out.println("Entrez la durï¿½e en minute");
 		int duree = sc.nextInt();
-		System.out.println("L'examen est-t-il sur machines ou ï¿½crit? \nMachine => m\nEcrit=> e");
+		System.out.println("L'examen est-t-il sur machines ou écrit? \nMachine => m\nEcrit=> e");
 		char type = sc.next().charAt(0);
 		try {
 			ajouterExamen.setString(1, code);
@@ -205,6 +215,22 @@ public class ApplicationCentrale {
 		}catch(SQLException e) {
 			System.out.println(e.getMessage().split("\n")[0]);
 		}	
+	}
+	
+	private void horaireExamenBloc() {
+		System.out.println("Entrez le bloc");
+		int bloc = sc.nextInt();
+		
+		try {
+			horaireExamenBloc.setInt(1,bloc);
+			try(ResultSet rs = horaireExamenBloc.executeQuery()){
+				while(rs.next()) {
+					System.out.println("code"+ rs.getString(1) +"nom"+rs.getString(2)+"date"+rs.getString(3)+"nmb"+rs.getInt(4));
+				}
+			}
+		}catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
 	}
 }
 
