@@ -53,16 +53,6 @@ CREATE TABLE projet.locaux_examens (
 	code_examen VARCHAR(6) REFERENCES projet.examens (code_examen) NOT NULL,
 	PRIMARY KEY (id_local,code_examen)
 );
-
-/*
-INSERTS
-*/
-
---SELECT projet.ajouterLocal('2b1',5,'o');
---SELECT projet.inscriptionUtilisateur('admin','admin@vinci.be','123',1);
---SELECT projet.ajoutExamen('IPL123','SQL Exam',1,150,'e');
---SELECT projet.ajoutLocauxExamens('2b1','IPL123');
---SELECT projet.ajouterInscriptionExamen('IPL123',1);
 	
 /*
 FUNCTIONS
@@ -174,7 +164,18 @@ BEGIN
 	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
 					WHERE i.code_examen = code_examenN) THEN
 		RAISE 'Pas d etudiant Inscrit';
+	END IF;
 
+	IF EXISTS (SELECT * FROM projet.examens e 
+				WHERE e.date=dateN 
+				AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=code_examenN)) THEN
+		RAISE 'Un examen du même bloc existe deja ce jour la';
+	END IF;
+	
+	IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
+                WHERE l.code_examen = code_examenN) THEN
+        RAISE 'Un local a déjà été réservé';
+	END IF;
 	--IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
 	--Examen avec date
 		--UPDATE(modify date);
@@ -186,8 +187,6 @@ BEGIN
 	--			WHERE e.code_examen = code_examenN AND e.id_bloc = (SELECT id_bloc FROM projet.examens e WHERE e.code_examen = code_examenN)) THEN
 	--	RAISE 'déjà un exam ce jour la ';
 
-	
-	END IF;
 	UPDATE projet.examens SET date=dateN WHERE code_examenN = code_examen;
 	RETURN TRUE;
 END;
@@ -225,12 +224,3 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A017',2,'o');
 INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A019',1,'o');
---INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
---	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
-
---SELECT projet.ajouterLocal('A055',5,'o');
---SELECT projet.inscriptionUtilisateur('marc','marc@email.com','marcCode',2);
---SELECT projet.ajouterExamen('IPL250','SQL',1,120,'m');
---SELECT projet.ajouterInscriptionExamen ('IPL100',1);
---SELECT projet.ajouterDateExamen('IPL100','2020-11-28');
---SELECT projet.ajouterLocauxExamens('A017','IPL150');

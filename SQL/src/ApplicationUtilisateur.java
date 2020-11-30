@@ -114,12 +114,12 @@ public class ApplicationUtilisateur {
 	}
 
 	private void inscriptionTousExamensBloc() {
-		// TODO Auto-generated method stub
+		// TODO Créer Trgigger pour empecher si probleme
 		
 	}
 	
 	private void afficherHorraire() {
-		// TODO Auto-generated method stub
+		// TODO Créer fonction pour récupérer les horraires 
 		
 	}
 
