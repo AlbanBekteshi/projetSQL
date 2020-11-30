@@ -10,7 +10,8 @@ public class ApplicationUtilisateur {
 	
 	private PreparedStatement ajouterUtilisateur;
 	private PreparedStatement connexion;
-	private PreparedStatement getPasswordFromUSername;
+	private PreparedStatement obtenirUtilisateurDepuisNomUtilisateur;
+	private PreparedStatement visualiserExamenBloc;
 	private PreparedStatement ajouterInscriptionExamen;
 	
 	
@@ -18,6 +19,7 @@ public class ApplicationUtilisateur {
 	private final static Scanner scanner = new Scanner(System.in);
 	private boolean isConnected = false;
 	private int idUtilisateur;
+	private int id_bloc;
 	private boolean stopped = false;
 	
 	public ApplicationUtilisateur() {
@@ -77,8 +79,8 @@ public class ApplicationUtilisateur {
 		System.out.println("Voici la liste de tous les examens");
 		
 		try {
-			Statement s = conn.createStatement();
-			try(ResultSet rs = s.executeQuery("SELECT * FROM projet.examens")) {
+			visualiserExamenBloc.setInt(1, id_bloc);
+			try(ResultSet rs = visualiserExamenBloc.executeQuery()) {
 				while(rs.next()) {
 					String stringAAfficher ="";
 					stringAAfficher+= rs.getString("code_examen");
@@ -109,7 +111,6 @@ public class ApplicationUtilisateur {
 		} catch(SQLException e) {
 			System.out.println(e.getMessage().split("\n")[0]);
 		}
-		System.out.println("fin inscriptionExamen()");
 	}
 
 	private void inscriptionTousExamensBloc() {
@@ -152,6 +153,7 @@ public class ApplicationUtilisateur {
 	}
 	
 	private void connexion() {
+		
 		System.out.println("CONNEXION\n");
 		System.out.println("Entrez votre nom d'utlilisateur :");
 		String username= scanner.next();
@@ -161,13 +163,14 @@ public class ApplicationUtilisateur {
 		String hashedPassword="";
 				
 		try {
-			getPasswordFromUSername.setString(1, username);
-			getPasswordFromUSername.executeQuery();
+			obtenirUtilisateurDepuisNomUtilisateur.setString(1, username);
+			obtenirUtilisateurDepuisNomUtilisateur.executeQuery();
 
-			try(ResultSet rs= getPasswordFromUSername.executeQuery()){
+			try(ResultSet rs = obtenirUtilisateurDepuisNomUtilisateur.executeQuery()){
 				while(rs.next()) {
 					hashedPassword = rs.getString("mot_de_passe");
 					idUtilisateur = rs.getInt("id_utilisateur");
+					id_bloc = rs.getInt("id_bloc");
 				}
 			}
 		} catch(SQLException e) {
@@ -180,11 +183,13 @@ public class ApplicationUtilisateur {
 			}
 			else {
 				idUtilisateur=0;
+				id_bloc=0;
 				System.out.println("Nom d'utilisateur ou mot de passe incorrect !");
 			}
 		}
 		else {
 			idUtilisateur=0;
+			id_bloc=0;
 			System.out.println("Nom d'utilisateur ou mot de passe incorrect !");
 		}
 		
@@ -214,7 +219,8 @@ public class ApplicationUtilisateur {
 		try {
 			ajouterUtilisateur = conn.prepareStatement("SELECT * FROM projet.inscriptionUtilisateur(?,?,?,?);");
 			connexion = conn.prepareStatement("SELECT * FROM projet.connexion;");
-			getPasswordFromUSername = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE nom_utilisateur = ?;");
+			obtenirUtilisateurDepuisNomUtilisateur = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE nom_utilisateur = ?;");
+			visualiserExamenBloc = conn.prepareStatement("SELECT * FROM projet.examens WHERE id_bloc = ?");
 			ajouterInscriptionExamen = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamen(?,?);");
 		} catch(SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
