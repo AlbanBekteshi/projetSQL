@@ -163,37 +163,20 @@ BEGIN
 	--TODO
 	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
 					WHERE i.code_examen = code_examenN) THEN
-		RAISE 'Pas d etudiant Inscrit';
+		RAISE 'Pas d etudiant Inscrit';														-- Reussi
 	END IF;
 
-<<<<<<< HEAD
-	END IF;
-	IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
-				WHERE l.code_examen = code_examenN) THEN
-		RAISE 'Un local a déjà été réservé';
-=======
 	IF EXISTS (SELECT * FROM projet.examens e 
-				WHERE e.date=dateN 
+				WHERE e.date::TIMESTAMP::DATE = dateN::TIMESTAMP::DATE
 				AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=code_examenN)) THEN
-		RAISE 'Un examen du même bloc existe deja ce jour la';
+		RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
 	END IF;
-	
+
 	IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
                 WHERE l.code_examen = code_examenN) THEN
-        RAISE 'Un local a déjà été réservé';
+        RAISE 'Un local a déjà été réservé';												-- Reussi
 	END IF;
->>>>>>> 5fb7ff1df473473c6813cbc18fba3e17f45cdcbe
-	--IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
-	--Examen avec date
-		--UPDATE(modify date);
-
-
-				-- A rergarder si cas existe déjà dans les videos
-	--END IF;
-	--IF EXISTS (SELECT date FROM projet.examens e
-	--			WHERE e.code_examen = code_examenN AND e.id_bloc = (SELECT id_bloc FROM projet.examens e WHERE e.code_examen = code_examenN)) THEN
-	--	RAISE 'déjà un exam ce jour la ';
-
+	
 	UPDATE projet.examens SET date=dateN WHERE code_examenN = code_examen;
 	RETURN TRUE;
 END;
@@ -231,3 +214,8 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A017',2,'o');
 INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A019',1,'o');
+
+
+INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
+	VALUES (DEFAULT,'adrien','adrien@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
+SELECT * FROM projet.utilisateurs;
