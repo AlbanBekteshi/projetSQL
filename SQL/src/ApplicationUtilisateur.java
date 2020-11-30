@@ -162,8 +162,10 @@ public class ApplicationUtilisateur {
 		String hashedPassword="";
 				
 		try {
-			Statement s = conn.createStatement();
-			try(ResultSet rs= s.executeQuery("SELECT mot_de_passe,id_utilisateur FROM projet.utilisateurs WHERE nom_utilisateur ='"+username+"';")){
+			getPasswordFromUSername.setString(1, username);
+			getPasswordFromUSername.executeQuery();
+
+			try(ResultSet rs= getPasswordFromUSername.executeQuery()){
 				while(rs.next()) {
 					hashedPassword = rs.getString("mot_de_passe");
 					idUtilisateur = rs.getInt("id_utilisateur");
