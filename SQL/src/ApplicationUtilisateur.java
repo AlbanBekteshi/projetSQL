@@ -99,7 +99,6 @@ public class ApplicationUtilisateur {
 	
 	private void inscriptionExamen() {
 		System.out.println("Inscription a un examen :");
-		//visualiserExamens();
 		System.out.println("Entrez le code de l'examen auquel vous voulez vous inscrire :");
 		String codeExamen = scanner.next();
 		
@@ -174,7 +173,6 @@ public class ApplicationUtilisateur {
 		} catch(SQLException e) {
 			System.out.println(e.getMessage().split("\n")[0]);
 		}
-		
 		if(hashedPassword!="") {
 			if(BCrypt.checkpw(password, hashedPassword)) {
 				System.out.println("Connexion reussie !");
@@ -216,7 +214,7 @@ public class ApplicationUtilisateur {
 		try {
 			ajouterUtilisateur = conn.prepareStatement("SELECT * FROM projet.inscriptionUtilisateur(?,?,?,?);");
 			connexion = conn.prepareStatement("SELECT * FROM projet.connexion;");
-			getPasswordFromUSername = conn.prepareStatement("SELECT mot_de_passe FROM projet.utilisateurs WHERE nom_utilisateur = ?;");
+			getPasswordFromUSername = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE nom_utilisateur = ?;");
 			ajouterInscriptionExamen = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamen(?,?);");
 		} catch(SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");

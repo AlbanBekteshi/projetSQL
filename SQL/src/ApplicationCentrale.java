@@ -173,7 +173,7 @@ public class ApplicationCentrale {
 		int bloc = sc.nextInt();
 		System.out.println("Entrez la durï¿½e en minute");
 		int duree = sc.nextInt();
-		System.out.println("L'examen est-t-il sur machines ou écrit? \nMachine => m\nEcrit=> e");
+		System.out.println("L'examen est-t-il sur machines ou ï¿½crit? \nMachine => m\nEcrit=> e");
 		char type = sc.next().charAt(0);
 		try {
 			ajouterExamen.setString(1, code);
@@ -195,7 +195,7 @@ public class ApplicationCentrale {
 		try {
 			ajouterLocauxExamens.setString(1, nomLocal);
 			ajouterLocauxExamens.setString(2, code);
-			ajouterExamen.executeQuery();
+			ajouterLocauxExamens.executeQuery();
 		} catch(SQLException e) {
 			System.out.println(e.getMessage().split("\n")[0]);
 		}
