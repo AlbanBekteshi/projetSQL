@@ -176,17 +176,7 @@ BEGIN
                 WHERE l.code_examen = code_examenN) THEN
         RAISE 'Un local a déjà été réservé';												-- Reussi
 	END IF;
-	--IF((SELECT e.date FROM projet.examens e WHERE code_examen=code_examenN) IS NOT NULL)
-	--Examen avec date
-		--UPDATE(modify date);
-
-
-				-- A rergarder si cas existe déjà dans les videos
-	--END IF;
-	--IF EXISTS (SELECT date FROM projet.examens e
-	--			WHERE e.code_examen = code_examenN AND e.id_bloc = (SELECT id_bloc FROM projet.examens e WHERE e.code_examen = code_examenN)) THEN
-	--	RAISE 'déjà un exam ce jour la ';
-
+	
 	UPDATE projet.examens SET date=dateN WHERE code_examenN = code_examen;
 	RETURN TRUE;
 END;
