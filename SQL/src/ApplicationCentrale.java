@@ -81,7 +81,7 @@ public class ApplicationCentrale {
 				app.ajouterLocauxExamens();
 				break;
 			case 4:
-				System.out.println("Ajouter La Date a un examen");
+				System.out.println("Ajouter/Modifier La Date a un examen");
 				app.ajouterDateExamen();
 				break;
 			case 5:
