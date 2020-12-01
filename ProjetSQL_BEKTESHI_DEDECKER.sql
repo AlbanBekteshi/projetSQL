@@ -182,17 +182,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-
-CREATE OR REPLACE FUNCTION projet.verificationChevauchement(code_examenN CHARACTER(6), date timestamp) RETURNS BOOLEAN AS $$
+CREATE OR REPLACE FUNCTION projet.obtenirUtilisateurDepuisId(INTEGER id_utilisateurN) RETURN SETOF RECORD AS $$
 DECLARE
-	id_bloc INTEGER;
+	user RECORD;
 BEGIN
-	--sélection du bloc de l'examen
-	SELECT e.id_bloc FROM projet.examens WHERE code_examenN=code_examen INTO id_bloc;
-	
+	IF NOT EXISTS(SELECT * FROM projet.utilisateurs u WHERE u.id_utilisateur=id_utilisateurN) THEN
+		RAISE 'Aucun utilisateur avec cet id';
+	END IF;
+	SELECT * FROM projet.utilisateurs u WHERE u.id_utilisateur=id_utilisateurN INTO user;
+	RETURN user;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE 'plpgsql';
+
 
 /*
  DEMO
