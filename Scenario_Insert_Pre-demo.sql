@@ -13,7 +13,7 @@ INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 	VALUES ('IPL150','Algo',1,240,'m');
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
-	VALUES ('IPL200','JAVASCRIPT',2,120,'m');
+	VALUES ('IPL200','JavaScript',2,120,'m');
 INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A017',2,'o');
 INSERT INTO projet.locaux (id_local,capacite,machine)
