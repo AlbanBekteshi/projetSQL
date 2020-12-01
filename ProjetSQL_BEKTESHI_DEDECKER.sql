@@ -88,19 +88,31 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION projet.ajouterExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, support CHAR(1)) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterExamen(CHARACTER(6),VARCHAR (100),INTEGER,INTEGER,CHAR(1)) RETURNS VOID AS $$
 DECLARE
+	v_code_examen ALIAS FOR $1;
+	v_nom ALIAS FOR $2;
+	v_id_bloc ALIAS FOR $3;
+	v_duree ALIAS FOR $4;
+	v_support ALIAS FOR $5;
 BEGIN
-	IF NOT EXISTS(SELECT * FROM projet.blocs b 
-					WHERE b.id_bloc=id_blocN) THEN	
-		RAISE 'Le bloc nexiste pas';													-- Reussi
-	END IF;
-	INSERT INTO projet.Examens(code_examen,nom,id_bloc,duree,support) 
-		VALUES(code_examen,nom,id_blocN,duree,support);
+	INSERT INTO projet.examens(code_examen,nom,id_bloc,duree,support) 
+		VALUES(v_code_examen,v_nom,v_id_bloc,v_duree,v_support);
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION projet.verif_ajouterExamen () RETURNS TRIGGER AS $$
+	BEGIN
+		IF NOT EXISTS (SELECT * FROM projet.blocs b
+					WHERE b.id_bloc = NEW.id_bloc) THEN
+			RAISE 'Le bloc nexiste pas';
+		END IF;
+		RETURN NEW;
+	END;
+$$LANGUAGE plpgsql;
+CREATE TRIGGER trigger_verifi_ajouterExam BEFORE INSERT ON projet.examens
+	FOR EACH ROW EXECUTE PROCEDURE projet.verif_ajouterExamen();
 
 --Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
