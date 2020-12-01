@@ -214,27 +214,33 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION projet.obtenirHoraireExamen(id_utilisateurN INTEGER) RETURNS SETOF RECORD AS $$
 DECLARE
-	separateur VARCHAR;
 	plusSymbol VARCHAR;
-	texte VARCHAR:='';
-	texteLocal VARCHAR;
-	finExamen VARCHAR:='Fin exam';
+
+	code_examen VARCHAR;
+	nom VARCHAR;
+	dateDebut VARCHAR;
+	dateFin TIMESTAMP;
+	locaux VARCHAR;
+	duree INTEGER;
+
 	examen RECORD;
 	local RECORD;
 	sortie RECORD;
 BEGIN
 	FOR examen IN (SELECT * FROM projet.examens e WHERE e.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie WHERE ie.id_utilisateur=id_utilisateurN) ORDER BY e.date) LOOP
-		separateur:=' ';
-		texteLocal:='';
-		--SELECT examen.date + interval 'examen.duree minutes' INTO finExamen;
-		texte:=examen.code_examen || separateur || examen.nom || separateur || examen.date || separateur || finExamen;
+		SELECT examen.duree INTO duree;
+		--SELECT TIMESTAMPADD(MINUTES, duree,examen.date::TIMESTAMP::TIME) INTO finExamen;
+		SELECT examen.code_examen INTO code_examen;
+		SELECT examen.nom INTO nom;
+		SELECT CAST(examen.date AS VARCHAR) INTO dateDebut;
+		SELECT examen.date::TIMESTAMP INTO dateFin;
 
 		FOR local IN SELECT * FROM projet.locaux_examens le WHERE le.code_examen=examen.code_examen LOOP
 			plusSymbol:='+';
-			texteLocal:=local.id_local || plusSymbol;
+			locaux:=locaux || local.id_local || plusSymbol;
 		END LOOP;
-		texte:='texte || separateur || texteLocal';
-		SELECT texte INTO sortie;
+
+		SELECT code_examen,nom,dateDebut,dateFin,locaux INTO sortie;
 		RETURN NEXT sortie;
 	END LOOP;
 END;
@@ -268,6 +274,8 @@ INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_pas
 INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
 	VALUES (DEFAULT,'alban','alban@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
 SELECT * FROM projet.utilisateurs;
-SELECT * FROM projet.obtenirHoraireExamen(1) t(horaire VARCHAR);
+
+SELECT * FROM projet.obtenirHoraireExamen(1) 
+	t(code_examen VARCHAR,nom VARCHAR, dateDebut VARCHAR, dateFin TIMESTAMP, locaux VARCHAR);
 
 
