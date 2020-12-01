@@ -4,6 +4,8 @@
  */
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class ApplicationUtilisateur {
@@ -11,6 +13,7 @@ public class ApplicationUtilisateur {
 	private PreparedStatement ajouterUtilisateur;
 	private PreparedStatement obtenirUtilisateurDepuisNomUtilisateur;
 	private PreparedStatement obtenirUtilisateurDepuisIdUtilisateur;
+	private PreparedStatement afficherHoraireUtilisateur;
 	private PreparedStatement visualiserExamenBloc;
 	private PreparedStatement ajouterInscriptionExamen;
 	
@@ -119,8 +122,50 @@ public class ApplicationUtilisateur {
 	}
 	
 	private void afficherHorraire() {
-		// TODO Créer fonction pour récupérer les horraires 
-		
+		try {
+			afficherHoraireUtilisateur.setInt(1, idUtilisateur);
+			try(ResultSet rs = afficherHoraireUtilisateur.executeQuery()) {
+				while(rs.next()) {
+					String stringAAfficher ="";
+					stringAAfficher+= rs.getString("code_examen");
+					stringAAfficher+="\t";
+					stringAAfficher+=rs.getString("nom");
+					stringAAfficher+="\t";
+					
+					Timestamp dateDebut = rs.getTimestamp("dateDebut");
+					if(dateDebut!=null) {
+						stringAAfficher+=dateDebut;
+					}
+					else {
+						stringAAfficher+="Aucune date";
+					}
+					stringAAfficher+="\t";
+					int duree = rs.getInt("duree");
+					if(dateDebut!=null) {
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+						LocalDateTime dateFin = dateDebut.toLocalDateTime().plusMinutes(duree);
+						
+						stringAAfficher+=dateFin.format(formatter);
+					}
+					else {
+						stringAAfficher+="Aucune date";
+					}
+										
+					stringAAfficher+="\t";
+					String locaux = rs.getString("locaux");
+					if(locaux!=null) {
+						stringAAfficher+=locaux;
+					}
+					else {
+						stringAAfficher+="Aucun local";
+					}
+					System.out.println(stringAAfficher);
+				}
+			}
+		}catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
+		System.out.println();
 	}
 
 	private void inscription() {
@@ -221,6 +266,7 @@ public class ApplicationUtilisateur {
 			obtenirUtilisateurDepuisIdUtilisateur = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE id_utilisateur = ?;");
 			visualiserExamenBloc = conn.prepareStatement("SELECT * FROM projet.examens WHERE id_bloc = ?");
 			ajouterInscriptionExamen = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamen(?,?);");
+			afficherHoraireUtilisateur = conn.prepareStatement("SELECT * FROM projet.obtenirHoraireExamen(?) t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, duree INTEGER, locaux VARCHAR);");
 		} catch(SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
