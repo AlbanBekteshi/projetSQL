@@ -155,7 +155,39 @@ $$ LANGUAGE plpgsql;
 --Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),dateN timestamp) RETURNS BOOLEAN AS $$
 DECLARE
+	dateFinNouveauExamen timestamp:=0;
+	examen RECORD;
+	dateDebutVerifExam timestamp:=0;
+	dateFinVerifExam timestamp:=0;
 BEGIN
+	SELECT TIMESTAMPADD(MINUTES,(SELECT e.duree FROM projet.examen e WHERE e.code_examen=code_examenN),dateN) INTO dateFinNouveauExamen;
+	
+	FOR examen IN SELECT * FROP projet.examens e WHERE dateN::TIMESTAMP::DATE = e.date::TIMESTAMP::DATE LOOP
+		SELECT date FROM examen INTO dateDebutVerifExam;
+		SELECT TIMESTAMPADD(MINUTES,(SELECT duree FROM examen),(SELECT date FROM examen)) INTO dateFinVerifExam;
+
+		--examen qui commence avant et termine pendant celui ajouté
+		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateN::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME > dateN::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen précédent pas encore terminé)';
+		END IF;
+
+		--examen qui commence avant et termine après celui ajouté
+		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateN::TIMESTAMP::TIME) AND (dateFinNouveauExamen::TIMESTAMP::TIME < dateFinVerifExam::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen précédent termine après cet examen)';
+		END IF;
+
+		--examen qui commence avant la fin de celui ajout et termine après
+		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateFinNouveauExamen::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME > dateFinNouveauExamen::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen débute au milieu de l examen ajouté et termine après)';
+		END IF;
+
+		--examen qui commence après le début de celui ajoute et termine avant
+		IF((dateN::TIMESTAMP::TIME < dateDebutVerifExam::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME < dateFinNouveauExamen::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen débute au milieu de l examen ajouté et termine avant)';
+		END IF;
+
+	END LOOP;
+
 	--Vérifier si date est sur autre examen
 	--TODO
 	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
