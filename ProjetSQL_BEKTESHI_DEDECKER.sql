@@ -88,6 +88,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+-- Ajouter un Examen
 CREATE OR REPLACE FUNCTION projet.ajouterExamen(CHARACTER(6),VARCHAR (100),INTEGER,INTEGER,CHAR(1)) RETURNS VOID AS $$
 DECLARE
 	v_code_examen ALIAS FOR $1;
@@ -102,6 +104,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Verif Ajouter un Examen a l'aide de TRIGGER
 CREATE OR REPLACE FUNCTION projet.verif_ajouterExamen () RETURNS TRIGGER AS $$
 	BEGIN
 		IF NOT EXISTS (SELECT * FROM projet.blocs b
@@ -114,33 +117,48 @@ $$LANGUAGE plpgsql;
 CREATE TRIGGER trigger_verifi_ajouterExam BEFORE INSERT ON projet.examens
 	FOR EACH ROW EXECUTE PROCEDURE projet.verif_ajouterExamen();
 
---Implémenter !!!
+
+
+
+
+-- Attribuer un local a un examen
 CREATE OR REPLACE FUNCTION projet.ajouterLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
 DECLARE
+	n_id_Local ALIAS FOR $1;
+	n_code_examen ALIAS FOR $2;
 BEGIN
-	IF EXISTS (SELECT e.date FROM projet.examens e 
-					WHERE code_examenN = e.code_examen AND e.date IS NULL) THEN
-		RAISE 'Heure du debut pas encore fixer';										-- Reussi
-	END IF;
-	IF NOT EXISTS(SELECT * FROM projet.locaux l
-					WHERE l.id_local = id_localN) THEN
-		RAISE 'Le local nexiste pas';													-- Reussi
-	END IF;
-	IF NOT EXISTS(SELECT * FROM projet.examens e
-					WHERE e.code_examen = code_examenN) THEN
-		RAISE 'L examen nexiste pas';													-- Reussi
-	END IF;
-	IF ((SELECT support FROM projet.examens e 
-				WHERE e.code_examen=code_examenN) = 'm') THEN
-		IF((SELECT machine FROM projet.locaux l WHERE l.id_local=id_localN)='n') THEN
-			RAISE 'Pas de machines dispo dans le local';								-- Reussi
-		END IF;
-	END IF;
 	-- Si l’examen est déjà complètement réservé. ????
-	INSERT INTO projet.locaux_examens VALUES (id_localN,code_examenN);
+	INSERT INTO projet.locaux_examens VALUES (n_id_Local,n_code_examen);
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Verif d'attribution d'un local via TRIGGER
+CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER AS $$
+	BEGIN
+		IF EXISTS (SELECT e.date FROM projet.examens e 
+					WHERE NEW.code_examen = e.code_examen AND e.date IS NULL) THEN
+			RAISE 'Heure du debut pas encore fixer';
+		END IF;
+		IF NOT EXISTS(SELECT * FROM projet.locaux l
+						WHERE l.id_local = NEW.id_local) THEN
+			RAISE 'Le local nexiste pas';
+		END IF;
+		IF NOT EXISTS(SELECT * FROM projet.examens e
+						WHERE e.code_examen = NEW.code_examen) THEN
+			RAISE 'L examen nexiste pas';													-- Reussi
+		END IF;
+		IF ((SELECT support FROM projet.examens e 
+					WHERE e.code_examen=NEW.code_examen) = 'm') THEN
+			IF((SELECT machine FROM projet.locaux l WHERE l.id_local=NEW.id_local)='n') THEN
+				RAISE 'Pas de machines dispo dans le local';								-- Reussi
+			END IF;
+		END IF;
+		RETURN NEW;
+	END;
+$$LANGUAGE plpgsql;
+CREATE TRIGGER trigger_verifi_ajouterLocauxExamens BEFORE INSERT ON projet.locaux_examens
+	FOR EACH  ROW EXECUTE PROCEDURE projet.verif_ajouterLocauxExamens();
 
 
 CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS BOOLEAN AS $$
