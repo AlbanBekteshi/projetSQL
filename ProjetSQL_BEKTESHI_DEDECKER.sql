@@ -155,6 +155,7 @@ $$ LANGUAGE plpgsql;
 --Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),dateN timestamp) RETURNS BOOLEAN AS $$
 DECLARE
+user INTEGER;
 BEGIN
 	--Vérifier si date est sur autre examen
 	--TODO
@@ -168,6 +169,16 @@ BEGIN
 				AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=code_examenN)) THEN
 		RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
 	END IF;
+
+	FOR user IN SELECT i.id_utilisateur FROM projet.inscriptions_examens i WHERE code_examenN = i.code_examen LOOP
+		IF e.date::TIMESTAMP::DATE = dateN::TIMESTAMP::DATE
+		FROM projet.examens e, projet.inscriptions_examens ie
+		WHERE e.code_examen = ie.code_examen
+		AND ie.id_utilisateur = user  THEN
+		RAISE 'Conflit horaire';
+		END IF;
+
+	END LOOP;
 
 	IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
                 WHERE l.code_examen = code_examenN) THEN
