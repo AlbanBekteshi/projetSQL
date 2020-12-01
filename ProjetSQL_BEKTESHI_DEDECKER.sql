@@ -218,7 +218,7 @@ DECLARE
 
 	code_examen VARCHAR;
 	nom VARCHAR;
-	dateDebut VARCHAR;
+	dateDebut TIMESTAMP;
 	dateFin TIMESTAMP;
 	locaux VARCHAR;
 	duree INTEGER;
@@ -232,12 +232,12 @@ BEGIN
 		--SELECT TIMESTAMPADD(MINUTES, duree,examen.date::TIMESTAMP::TIME) INTO finExamen;
 		SELECT examen.code_examen INTO code_examen;
 		SELECT examen.nom INTO nom;
-		SELECT CAST(examen.date AS VARCHAR) INTO dateDebut;
+		SELECT examen.date::TIMESTAMP INTO dateDebut;
 		SELECT examen.date::TIMESTAMP INTO dateFin;
 
 		FOR local IN SELECT * FROM projet.locaux_examens le WHERE le.code_examen=examen.code_examen LOOP
 			plusSymbol:='+';
-			locaux:=locaux || local.id_local || plusSymbol;
+			locaux:=local.id_local || plusSymbol;
 		END LOOP;
 
 		SELECT code_examen,nom,dateDebut,dateFin,locaux INTO sortie;
@@ -276,6 +276,6 @@ INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_pas
 SELECT * FROM projet.utilisateurs;
 
 SELECT * FROM projet.obtenirHoraireExamen(1) 
-	t(code_examen VARCHAR,nom VARCHAR, dateDebut VARCHAR, dateFin TIMESTAMP, locaux VARCHAR);
+	t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, dateFin TIMESTAMP, locaux VARCHAR);
 
 
