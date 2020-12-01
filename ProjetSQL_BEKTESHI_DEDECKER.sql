@@ -160,11 +160,11 @@ DECLARE
 	dateDebutVerifExam timestamp:=0;
 	dateFinVerifExam timestamp:=0;
 BEGIN
-	SELECT TIMESTAMPADD(MINUTES,(SELECT e.duree FROM projet.examen e WHERE e.code_examen=code_examenN),dateN) INTO dateFinNouveauExamen;
+	SELECT TIMESTAMPADD(MINUTE,(SELECT e.duree FROM projet.examen e WHERE e.code_examen=code_examenN),dateN) INTO dateFinNouveauExamen;
 	
-	FOR examen IN SELECT * FROP projet.examens e WHERE dateN::TIMESTAMP::DATE = e.date::TIMESTAMP::DATE LOOP
+	FOR examen IN SELECT * FROM projet.examens e WHERE dateN::TIMESTAMP::DATE = e.date::TIMESTAMP::DATE LOOP
 		SELECT date FROM examen INTO dateDebutVerifExam;
-		SELECT TIMESTAMPADD(MINUTES,(SELECT duree FROM examen),(SELECT date FROM examen)) INTO dateFinVerifExam;
+		SELECT TIMESTAMPADD(MINUTE,(SELECT duree FROM examen),(SELECT date FROM examen)) INTO dateFinVerifExam;
 
 		--examen qui commence avant et termine pendant celui ajouté
 		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateN::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME > dateN::TIMESTAMP::TIME)) THEN
@@ -212,6 +212,34 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION projet.obtenirHoraireExamen(id_utilisateurN INTEGER) RETURNS SETOF RECORD AS $$
+DECLARE
+	separateur VARCHAR;
+	plusSymbol VARCHAR;
+	texte VARCHAR:='';
+	texteLocal VARCHAR;
+	finExamen VARCHAR:='Fin exam';
+	examen RECORD;
+	local RECORD;
+	sortie RECORD;
+BEGIN
+	FOR examen IN (SELECT * FROM projet.examens e WHERE e.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie WHERE ie.id_utilisateur=id_utilisateurN) ORDER BY e.date) LOOP
+		separateur:=' ';
+		texteLocal:='';
+		--SELECT examen.date + interval 'examen.duree minutes' INTO finExamen;
+		texte:=examen.code_examen || separateur || examen.nom || separateur || examen.date || separateur || finExamen;
+
+		FOR local IN SELECT * FROM projet.locaux_examens le WHERE le.code_examen=examen.code_examen LOOP
+			plusSymbol:='+';
+			texteLocal:=local.id_local || plusSymbol;
+		END LOOP;
+		texte:='texte || separateur || texteLocal';
+		SELECT texte INTO sortie;
+		RETURN NEXT sortie;
+	END LOOP;
+END;
+$$ LANGUAGE 'plpgsql';
+
 
 /*
  DEMO
@@ -240,3 +268,6 @@ INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_pas
 INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
 	VALUES (DEFAULT,'alban','alban@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
 SELECT * FROM projet.utilisateurs;
+SELECT * FROM projet.obtenirHoraireExamen(1) t(horaire VARCHAR);
+
+
