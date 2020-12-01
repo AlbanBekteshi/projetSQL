@@ -23,12 +23,12 @@ Insights
 Settings
 projetSQL/ProjetSQL_BEKTESHI_DEDECKER.sql
 @AdriendeDecker
-AdriendeDecker suite afficherHoraire
-Latest commit 1ee3abb 9 minutes ago
+AdriendeDecker fin afficherHoraire SQL
+Latest commit 024e035 5 minutes ago
  History
  4 contributors
 @AdriendeDecker@adrien-dedecker-ipl@AlbanBek@AlbanBekteshi
-281 lines (235 sloc)  9.97 KB
+278 lines (232 sloc)  9.82 KB
   
 DROP SCHEMA IF EXISTS projet CASCADE;
 CREATE SCHEMA projet;
@@ -251,7 +251,6 @@ DECLARE
 	code_examen VARCHAR;
 	nom VARCHAR;
 	dateDebut TIMESTAMP;
-	dateFin TIMESTAMP;
 	locaux VARCHAR;
 	duree INTEGER;
 
@@ -261,18 +260,16 @@ DECLARE
 BEGIN
 	FOR examen IN (SELECT * FROM projet.examens e WHERE e.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie WHERE ie.id_utilisateur=id_utilisateurN) ORDER BY e.date) LOOP
 		SELECT examen.duree INTO duree;
-		--SELECT TIMESTAMPADD(MINUTES, duree,examen.date::TIMESTAMP::TIME) INTO finExamen;
 		SELECT examen.code_examen INTO code_examen;
 		SELECT examen.nom INTO nom;
 		SELECT examen.date::TIMESTAMP INTO dateDebut;
-		SELECT examen.date::TIMESTAMP INTO dateFin;
 
 		FOR local IN SELECT * FROM projet.locaux_examens le WHERE le.code_examen=examen.code_examen LOOP
 			plusSymbol:='+';
 			locaux:=local.id_local || plusSymbol;
 		END LOOP;
 
-		SELECT code_examen,nom,dateDebut,dateFin,locaux INTO sortie;
+		SELECT code_examen,nom,dateDebut,duree,locaux INTO sortie;
 		RETURN NEXT sortie;
 	END LOOP;
 END;
@@ -308,4 +305,4 @@ INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_pas
 SELECT * FROM projet.utilisateurs;
 
 SELECT * FROM projet.obtenirHoraireExamen(1) 
-	t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, dateFin TIMESTAMP, locaux VARCHAR);
+	t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, duree INTEGER, locaux VARCHAR);
