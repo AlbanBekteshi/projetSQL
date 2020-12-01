@@ -11,7 +11,7 @@ INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 	VALUES ('IPL100','APOO',1,120,'e');
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
-	VALUES ('IPL150','ALGO',1,60,'m');
+	VALUES ('IPL150','Algo',1,240,'m');
 INSERT INTO projet.examens (code_examen,nom,id_bloc,duree,support)
 	VALUES ('IPL200','JAVASCRIPT',2,120,'m');
 INSERT INTO projet.locaux (id_local,capacite,machine)
@@ -25,8 +25,8 @@ INSERT SCENARIO 1
 */
 
 INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Damas','Damas@email.be','DamasCode',1);
+	VALUES (DEFAULT,'Damas','Damas@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
 INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Ferneeuw','Ferneeuw@email.be','FerneeuxCode',2);
+	VALUES (DEFAULT,'Ferneeuw','Ferneeuw@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
 INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Cambron','Cambron@email.be','CambronCode',2);
+	VALUES (DEFAULT,'Cambron','Cambron@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);

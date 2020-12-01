@@ -234,7 +234,9 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A019',1,'o');
 
-
+--Tous les mdp sont 123
 INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
 	VALUES (DEFAULT,'adrien','adrien@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
+INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
+	VALUES (DEFAULT,'alban','alban@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
 SELECT * FROM projet.utilisateurs;
