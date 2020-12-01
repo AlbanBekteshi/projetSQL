@@ -1,3 +1,35 @@
+Skip to content
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@AlbanBekteshi 
+AlbanBekteshi
+/
+projetSQL
+1
+00
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+projetSQL/ProjetSQL_BEKTESHI_DEDECKER.sql
+@AdriendeDecker
+AdriendeDecker suite afficherHoraire
+Latest commit 1ee3abb 9 minutes ago
+ History
+ 4 contributors
+@AdriendeDecker@adrien-dedecker-ipl@AlbanBek@AlbanBekteshi
+281 lines (235 sloc)  9.97 KB
+  
 DROP SCHEMA IF EXISTS projet CASCADE;
 CREATE SCHEMA projet;
 
@@ -155,8 +187,39 @@ $$ LANGUAGE plpgsql;
 --Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),dateN timestamp) RETURNS BOOLEAN AS $$
 DECLARE
-user INTEGER;
+	dateFinNouveauExamen timestamp:=0;
+	examen RECORD;
+	dateDebutVerifExam timestamp:=0;
+	dateFinVerifExam timestamp:=0;
 BEGIN
+	SELECT TIMESTAMPADD(MINUTE,(SELECT e.duree FROM projet.examen e WHERE e.code_examen=code_examenN),dateN) INTO dateFinNouveauExamen;
+	
+	FOR examen IN SELECT * FROM projet.examens e WHERE dateN::TIMESTAMP::DATE = e.date::TIMESTAMP::DATE LOOP
+		SELECT date FROM examen INTO dateDebutVerifExam;
+		SELECT TIMESTAMPADD(MINUTE,(SELECT duree FROM examen),(SELECT date FROM examen)) INTO dateFinVerifExam;
+
+		--examen qui commence avant et termine pendant celui ajouté
+		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateN::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME > dateN::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen précédent pas encore terminé)';
+		END IF;
+
+		--examen qui commence avant et termine après celui ajouté
+		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateN::TIMESTAMP::TIME) AND (dateFinNouveauExamen::TIMESTAMP::TIME < dateFinVerifExam::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen précédent termine après cet examen)';
+		END IF;
+
+		--examen qui commence avant la fin de celui ajout et termine après
+		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateFinNouveauExamen::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME > dateFinNouveauExamen::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen débute au milieu de l examen ajouté et termine après)';
+		END IF;
+
+		--examen qui commence après le début de celui ajoute et termine avant
+		IF((dateN::TIMESTAMP::TIME < dateDebutVerifExam::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME < dateFinNouveauExamen::TIMESTAMP::TIME)) THEN
+			RAISE 'Conflit Horaire (examen débute au milieu de l examen ajouté et termine avant)';
+		END IF;
+
+	END LOOP;
+
 	--Vérifier si date est sur autre examen
 	--TODO
 	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
@@ -170,16 +233,6 @@ BEGIN
 		RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
 	END IF;
 
-	FOR user IN SELECT i.id_utilisateur FROM projet.inscriptions_examens i WHERE code_examenN = i.code_examen LOOP
-		IF e.date::TIMESTAMP::DATE = dateN::TIMESTAMP::DATE
-		FROM projet.examens e, projet.inscriptions_examens ie
-		WHERE e.code_examen = ie.code_examen
-		AND ie.id_utilisateur = user  THEN
-		RAISE 'Conflit horaire';
-		END IF;
-
-	END LOOP;
-
 	IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
                 WHERE l.code_examen = code_examenN) THEN
         RAISE 'Un local a déjà été réservé';												-- Reussi
@@ -190,6 +243,40 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION projet.obtenirHoraireExamen(id_utilisateurN INTEGER) RETURNS SETOF RECORD AS $$
+DECLARE
+	plusSymbol VARCHAR;
+
+	code_examen VARCHAR;
+	nom VARCHAR;
+	dateDebut TIMESTAMP;
+	dateFin TIMESTAMP;
+	locaux VARCHAR;
+	duree INTEGER;
+
+	examen RECORD;
+	local RECORD;
+	sortie RECORD;
+BEGIN
+	FOR examen IN (SELECT * FROM projet.examens e WHERE e.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie WHERE ie.id_utilisateur=id_utilisateurN) ORDER BY e.date) LOOP
+		SELECT examen.duree INTO duree;
+		--SELECT TIMESTAMPADD(MINUTES, duree,examen.date::TIMESTAMP::TIME) INTO finExamen;
+		SELECT examen.code_examen INTO code_examen;
+		SELECT examen.nom INTO nom;
+		SELECT examen.date::TIMESTAMP INTO dateDebut;
+		SELECT examen.date::TIMESTAMP INTO dateFin;
+
+		FOR local IN SELECT * FROM projet.locaux_examens le WHERE le.code_examen=examen.code_examen LOOP
+			plusSymbol:='+';
+			locaux:=local.id_local || plusSymbol;
+		END LOOP;
+
+		SELECT code_examen,nom,dateDebut,dateFin,locaux INTO sortie;
+		RETURN NEXT sortie;
+	END LOOP;
+END;
+$$ LANGUAGE 'plpgsql';
 
 
 /*
@@ -213,7 +300,12 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A019',1,'o');
 
-
+--Tous les mdp sont 123
 INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
 	VALUES (DEFAULT,'adrien','adrien@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
+INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
+	VALUES (DEFAULT,'alban','alban@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
 SELECT * FROM projet.utilisateurs;
+
+SELECT * FROM projet.obtenirHoraireExamen(1) 
+	t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, dateFin TIMESTAMP, locaux VARCHAR);
