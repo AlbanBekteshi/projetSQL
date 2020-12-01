@@ -121,7 +121,7 @@ public class ApplicationUtilisateur {
 		// TODO
 		try {
 			ajouterInscriptionExamenBloc.setInt(1, this.idUtilisateur);
-			try(ResultSet rs = ajouterInscriptionExamen.executeQuery()){
+			try(ResultSet rs = ajouterInscriptionExamenBloc.executeQuery()){
 				while(rs.next()) {
 					if(rs.getBoolean("boolean")) {
 						System.out.println("Inscription reussie !");
