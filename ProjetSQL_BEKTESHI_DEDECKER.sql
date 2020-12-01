@@ -54,13 +54,15 @@ CREATE TABLE projet.locaux_examens (
 	PRIMARY KEY (id_local,code_examen)
 );
 	
+
+
 /*
 FUNCTIONS
 */
 
---Implémenter !!!
+
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite INT,machine CHAR(1)) RETURNS VOID AS $$
-DECLARE -- Faut-il obligatoirement le mettre ? 
+DECLARE
 BEGIN
 	IF(capacite<=0) THEN 
 		RAISE 'Capacité doit être > que 0'; 											-- Reussi
@@ -70,9 +72,6 @@ BEGIN
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
-
-
-
 
 
 CREATE OR REPLACE FUNCTION projet.inscriptionUtilisateur(nom_utilisateur VARCHAR(100), email VARCHAR(100), mot_de_passe VARCHAR(100), id_blocN INTEGER) RETURNS VOID AS $$
@@ -89,7 +88,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
---Implémenter !!!
 CREATE OR REPLACE FUNCTION projet.ajouterExamen(code_examen CHARACTER(6), nom VARCHAR (100), id_blocN INTEGER, duree INTEGER, support CHAR(1)) RETURNS VOID AS $$
 DECLARE
 BEGIN
@@ -131,7 +129,6 @@ BEGIN
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS VOID AS $$
@@ -182,17 +179,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION projet.obtenirUtilisateurDepuisId(INTEGER id_utilisateurN) RETURN SETOF RECORD AS $$
-DECLARE
-	user RECORD;
-BEGIN
-	IF NOT EXISTS(SELECT * FROM projet.utilisateurs u WHERE u.id_utilisateur=id_utilisateurN) THEN
-		RAISE 'Aucun utilisateur avec cet id';
-	END IF;
-	SELECT * FROM projet.utilisateurs u WHERE u.id_utilisateur=id_utilisateurN INTO user;
-	RETURN user;
-END;
-$$ LANGUAGE 'plpgsql';
 
 
 /*

@@ -9,8 +9,8 @@ import java.util.Scanner;
 public class ApplicationUtilisateur {
 	
 	private PreparedStatement ajouterUtilisateur;
-	private PreparedStatement connexion;
 	private PreparedStatement obtenirUtilisateurDepuisNomUtilisateur;
+	private PreparedStatement obtenirUtilisateurDepuisIdUtilisateur;
 	private PreparedStatement visualiserExamenBloc;
 	private PreparedStatement ajouterInscriptionExamen;
 	
@@ -164,7 +164,6 @@ public class ApplicationUtilisateur {
 				
 		try {
 			obtenirUtilisateurDepuisNomUtilisateur.setString(1, username);
-			obtenirUtilisateurDepuisNomUtilisateur.executeQuery();
 
 			try(ResultSet rs = obtenirUtilisateurDepuisNomUtilisateur.executeQuery()){
 				while(rs.next()) {
@@ -178,7 +177,7 @@ public class ApplicationUtilisateur {
 		}
 		if(hashedPassword!="") {
 			if(BCrypt.checkpw(password, hashedPassword)) {
-				System.out.println("Connexion reussie !");
+				System.out.println("Connexion reussie !\n\n\n\n\n");
 				isConnected=true;
 			}
 			else {
@@ -218,8 +217,8 @@ public class ApplicationUtilisateur {
 		
 		try {
 			ajouterUtilisateur = conn.prepareStatement("SELECT * FROM projet.inscriptionUtilisateur(?,?,?,?);");
-			connexion = conn.prepareStatement("SELECT * FROM projet.connexion;");
 			obtenirUtilisateurDepuisNomUtilisateur = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE nom_utilisateur = ?;");
+			obtenirUtilisateurDepuisIdUtilisateur = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE id_utilisateur = ?;");
 			visualiserExamenBloc = conn.prepareStatement("SELECT * FROM projet.examens WHERE id_bloc = ?");
 			ajouterInscriptionExamen = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamen(?,?);");
 		} catch(SQLException e) {
