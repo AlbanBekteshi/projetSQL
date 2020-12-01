@@ -131,7 +131,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS BOOLEAN AS $$
 DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.examens e
@@ -147,7 +147,7 @@ BEGIN
 		RAISE 'Date d examen déjà declare';													-- Reussi
 	END IF;
 	INSERT INTO projet.inscriptions_examens VALUES(code_examenN,id_utilisateurN);
-	RETURN;
+	RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -244,6 +244,21 @@ END;
 $$ LANGUAGE 'plpgsql';
 
 
+CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamenBloc(id_utilisateurN INTEGER) RETURNS BOOLEAN AS $$
+DECLARE
+	examen RECORD;
+BEGIN
+	FOR examen IN SELECT * FROM projet.examens e WHERE e.id_bloc = (SELECT u.id_bloc FROM projet.utilisateurs u WHERE u.id_utilisateur=id_utilisateurN) LOOP
+		IF NOT(projet.ajouterInscriptionExamen(examen.code_examen,id_utilisateurN)) THEN
+			ROLLBACK;
+			RETURN FALSE;
+		END IF;
+	END LOOP;
+	RETURN TRUE;
+END;
+$$ LANGUAGE 'plpgsql';
+
+
 /*
  DEMO
 */
@@ -275,4 +290,4 @@ SELECT * FROM projet.utilisateurs;
 SELECT * FROM projet.obtenirHoraireExamen(1) 
 	t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, duree INTEGER, locaux VARCHAR);
 
-
+SELECT projet.ajouterInscriptionExamenBloc(1);

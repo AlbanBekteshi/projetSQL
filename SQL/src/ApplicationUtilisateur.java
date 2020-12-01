@@ -16,6 +16,7 @@ public class ApplicationUtilisateur {
 	private PreparedStatement afficherHoraireUtilisateur;
 	private PreparedStatement visualiserExamenBloc;
 	private PreparedStatement ajouterInscriptionExamen;
+	private PreparedStatement ajouterInscriptionExamenBloc;
 	
 	
 	private Connection conn;
@@ -117,8 +118,21 @@ public class ApplicationUtilisateur {
 	}
 
 	private void inscriptionTousExamensBloc() {
-		// TODO Créer Trgigger pour empecher si probleme
-		
+		// TODO
+		try {
+			ajouterInscriptionExamenBloc.setInt(1, this.idUtilisateur);
+			try(ResultSet rs = ajouterInscriptionExamen.executeQuery()){
+				while(rs.next()) {
+					if(rs.getBoolean("boolean")) {
+						System.out.println("Inscription reussie !");
+					}else {
+						System.out.println("Il y a eu un problème lors de l'inscription à tous les examens du bloc");
+					}
+				}
+			}
+		} catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
 	}
 	
 	private void afficherHorraire() {
@@ -266,6 +280,7 @@ public class ApplicationUtilisateur {
 			obtenirUtilisateurDepuisIdUtilisateur = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE id_utilisateur = ?;");
 			visualiserExamenBloc = conn.prepareStatement("SELECT * FROM projet.examens WHERE id_bloc = ?");
 			ajouterInscriptionExamen = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamen(?,?);");
+			ajouterInscriptionExamenBloc = conn.prepareStatement("SELECT projet.ajouterInscriptionExamenBloc(?);");
 			afficherHoraireUtilisateur = conn.prepareStatement("SELECT * FROM projet.obtenirHoraireExamen(?) t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, duree INTEGER, locaux VARCHAR);");
 		} catch(SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
