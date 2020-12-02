@@ -213,12 +213,14 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterDateExamen() RETURNS TRIGGER AS $
 					AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=NEW.code_examen)) THEN
 			RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
 		END IF;
+
+
 		IF EXISTS (SELECT * FROM projet.examens e
-					WHERE NEW.date::TIMESTAMP::DATE =(SELECT ee.date::TIMESTAMP::DATE FROM projet.examens ee
-						WHERE ee.code_examen = (SELECT ie.code_examen FROM projet.inscriptions_examens ie
-							WHERE ie.id_utilisateur = (SELECT iee.id_utilisateur FROM projet.inscriptions_examens iee
+					WHERE NEW.date::TIMESTAMP::DATE IN (SELECT ee.date::TIMESTAMP::DATE FROM projet.examens ee
+						WHERE ee.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie
+							WHERE ie.id_utilisateur IN (SELECT iee.id_utilisateur FROM projet.inscriptions_examens iee
 								WHERE iee.code_examen = NEW.code_examen)))) THEN
-			RAISE 'conflict';
+			RAISE 'Conflit Horaire';
 		END IF;
 		RETURN NEW;
 	END;
