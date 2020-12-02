@@ -188,7 +188,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
---Implémenter !!!
+--Ajoute/Modifie la date d'un examen
 CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(CHARACTER(6), timestamp) RETURNS BOOLEAN AS $$
 DECLARE
 	n_code_examen ALIAS FOR $1;
@@ -326,3 +326,4 @@ SELECT projet.ajouterInscriptionExamenBloc(1);
 SELECT * FROM projet.ajouterInscriptionExamen('IPL200','2');
 SELECT * FROM projet.inscriptions_examens;
 SELECT * FROM projet.examens
+

@@ -18,6 +18,7 @@ public class ApplicationCentrale {
 	private PreparedStatement ajouterLocauxExamens;
 	private PreparedStatement ajouterDateExamen;
 	private PreparedStatement horaireExamenBloc;
+	private PreparedStatement examenNonReserver;
 	private final static Scanner sc = new Scanner(System.in);
 	
 	
@@ -50,6 +51,7 @@ public class ApplicationCentrale {
 			ajouterDateExamen = conn.prepareStatement("SELECT * FROM projet.ajouterDateExamen(?,?);");
 			horaireExamenBloc = conn.prepareStatement("SELECT e.code_examen, e.nom, e.date, COUNT(l.id_local) FROM projet.examens e LEFT OUTER JOIN projet.locaux_examens l ON e.code_examen = l.code_examen"
 					+ " WHERE e.id_bloc = ? GROUP BY e.code_examen ORDER BY e.date;");
+			examenNonReserver = conn.prepareStatement("SELECT e.code_examen, e.nom, e.date FROM projet.examens e LEFT OUTER JOIN  projet.locaux_examens le ON le.code_examen = e.code_examen WHERE( (SELECT count(ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = e.code_examen)  > ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) OR ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) IS NULL );");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -69,31 +71,46 @@ public class ApplicationCentrale {
 			
 			switch (action) {
 			case 1:
+				System.out.println("--------------------------------------\n");
 				System.out.println("Ajouter Local\n");
 				app.ajouterLocal();
+				System.out.println("--------------------------------------\n");
 				break;
 			case 2:
+				System.out.println("--------------------------------------\n");
 				System.out.println("Ajouter Examen\n");
 				app.ajouterExamen();
+				System.out.println("--------------------------------------\n");
 				break;
 			case 3:
+				System.out.println("--------------------------------------\n");
 				System.out.println("Ajouter Locaux pour examen");
 				app.ajouterLocauxExamens();
+				System.out.println("--------------------------------------\n");
 				break;
 			case 4:
+				System.out.println("--------------------------------------\n");
 				System.out.println("Ajouter/Modifier La Date a un examen");
 				app.ajouterDateExamen();
+				System.out.println("--------------------------------------\n");
 				break;
 			case 5:
+				System.out.println("--------------------------------------\n");
 				System.out.println("Horaire Exam");
 				app.horaireExamenBloc();
+				System.out.println("--------------------------------------\n");
 				break;
+			case 7:
+				System.out.println("--------------------------------------\n");
+				System.out.println("Visualiser Exam pas encore complet");
+				app.examenNonReserver();
+				System.out.println("--------------------------------------\n");
 			default:
 				System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
 				System.exit(1);
 				break;
 			}
-		}while(action >=1 && action <= 4);
+		}while(action >=1 && action <= 7);
 		
 	}
 	
@@ -110,6 +127,7 @@ public class ApplicationCentrale {
 		System.out.println("3: Ajouter un local pour un Examen");
 		System.out.println("4: Ajouter la date a un Examen");
 		System.out.println("5: Horaire Examen");
+		System.out.println("7: Visualiser Exam pas encore complet");
 		int action = 0;
 		
 		do {			
@@ -195,12 +213,23 @@ public class ApplicationCentrale {
 	private void horaireExamenBloc() {
 		System.out.println("Entrez le bloc");
 		int bloc = sc.nextInt();
-		
 		try {
 			horaireExamenBloc.setInt(1,bloc);
 			try(ResultSet rs = horaireExamenBloc.executeQuery()){
 				while(rs.next()) {
 					System.out.println("code "+ rs.getString(1) +" nom "+rs.getString(2)+" date "+rs.getString(3)+" nmb "+rs.getInt(4));
+				}
+			}
+		}catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
+	}
+	
+	private void examenNonReserver() {
+		try {
+			try (ResultSet rs = examenNonReserver.executeQuery()){
+				while(rs.next()) {
+					System.out.println("code "+rs.getString(1) +" nom "+ rs.getString(2)+" date "+rs.getString(3));
 				}
 			}
 		}catch(SQLException e) {
