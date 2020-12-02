@@ -215,19 +215,35 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterDateExamen() RETURNS TRIGGER AS $
 		END IF;
 
 
-		IF EXISTS (SELECT * FROM projet.examens e
-					WHERE NEW.date::TIMESTAMP::DATE IN (SELECT ee.date::TIMESTAMP::DATE FROM projet.examens ee
-						WHERE ee.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie
-							WHERE ie.id_utilisateur IN (SELECT iee.id_utilisateur FROM projet.inscriptions_examens iee
-								WHERE iee.code_examen = NEW.code_examen)))) THEN
-			RAISE 'Conflit Horaire';
-		END IF;
+		--IF EXISTS (SELECT * FROM projet.examens e
+		--			WHERE NEW.date::TIMESTAMP::DATE IN (SELECT ee.date::TIMESTAMP::DATE FROM projet.examens ee
+		--				WHERE ee.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie
+		--					WHERE ie.id_utilisateur IN (SELECT iee.id_utilisateur FROM projet.inscriptions_examens iee
+		--						WHERE iee.code_examen = NEW.code_examen)))) THEN
+		--	RAISE 'Conflit Horaire';
+		--END IF;
 		RETURN NEW;
 	END;
 $$LANGUAGE plpgsql;
 CREATE TRIGGER trigger_verifi_ajouterDateExam BEFORE UPDATE ON projet.examens
 	FOR EACH ROW EXECUTE PROCEDURE projet.verif_ajouterDateExamen();
 
+
+CREATE OR REPLACE FUNCTION projet.obtenirHeureFin(code_examenN VARCHAR(6),code_examenN2 VARCHAR(6)) RETURNS BOOLEAN AS $$
+	DECLARE
+		n_duree INTEGER;
+		n_dateDebut TIMESTAMP;
+		n2_duree INTEGER;
+		n2_dateDebut TIMESTAMP;
+		nn_datefin VARCHAR='100 minutes';
+	BEGIN
+		SELECT e.duree FROM projet.examens e WHERE e.code_examen = code_examenN INTO n_duree;
+		SELECT e.date FROM projet.examens e WHERE e.code_examen = code_examenN INTO n_dateDebut;
+		SELECT e.duree FROM projet.examens e WHERE e.code_examen = code_examenN2 INTO n2_duree;
+		SELECT e.date FROM projet.examens e WHERE e.code_examen = code_examenN2 INTO n2_dateDebut;
+	RETURN ( n_dateDebut, nn_datefin::INTERVAL) OVERLAPS ( n2_dateDebut, INTERVAL '60 minutes');
+END;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION projet.obtenirHoraireExamen(id_utilisateurN INTEGER) RETURNS SETOF RECORD AS $$
 DECLARE
@@ -307,4 +323,9 @@ SELECT * FROM projet.utilisateurs;
 SELECT * FROM projet.obtenirHoraireExamen(1) 
 	t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, duree INTEGER, locaux VARCHAR);
 
+
 SELECT projet.ajouterInscriptionExamenBloc(1);
+SELECT * FROM projet.ajouterInscriptionExamen('IPL200','1');
+SELECT * FROM projet.ajouterDateExamen('IPL100','2020-12-25 09:00:00');
+SELECT * FROM projet.ajouterDateExamen('IPL200','2020-12-25 10:00:00');
+SELECT * FROM projet.obtenirHeureFin('IPL100','IPL200');

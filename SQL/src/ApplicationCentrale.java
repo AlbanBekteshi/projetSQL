@@ -49,7 +49,7 @@ public class ApplicationCentrale {
 			ajouterLocauxExamens = conn.prepareStatement("SELECT * FROM projet.ajouterLocauxExamens(?,?);");
 			ajouterDateExamen = conn.prepareStatement("SELECT * FROM projet.ajouterDateExamen(?,?);");
 			horaireExamenBloc = conn.prepareStatement("SELECT e.code_examen, e.nom, e.date, COUNT(l.id_local) FROM projet.examens e LEFT OUTER JOIN projet.locaux_examens l ON e.code_examen = l.code_examen"
-					+ " WHERE e.id_bloc = ? GROUP BY e.code_examen;");
+					+ " WHERE e.id_bloc = ? GROUP BY e.code_examen ORDER BY e.date;");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
