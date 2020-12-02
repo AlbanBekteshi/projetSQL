@@ -166,27 +166,40 @@ CREATE TRIGGER trigger_verifi_ajouterLocauxExamens BEFORE INSERT ON projet.locau
 
 
 
-
-CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS BOOLEAN AS $$
+-- Inscription d'un etudiant a un examen
+CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(CHARACTER(6), INTEGER) RETURNS BOOLEAN AS $$
 DECLARE
+	n_code_examen ALIAS FOR $1;
+	n_id_utilisateur ALIAS FOR $2;
 BEGIN
-	IF NOT EXISTS(SELECT * FROM projet.examens e
-					WHERE e.code_examen = code_examenN) THEN
-		RAISE 'L examen nexiste pas';														-- Reussi
-	END IF;
-	IF NOT EXISTS(SELECT * FROM projet.utilisateurs u
-					WHERE u.id_utilisateur = id_utilisateurN) THEN
-		RAISE 'L utilisateur nexiste pas';													-- Reussi
-	END IF;
-	IF EXISTS (SELECT date FROM projet.examens e 										
-				WHERE e.code_examen = code_examenN AND e.date IS NOT NULL) THEN
-		RAISE 'Date d examen déjà declare';													-- Reussi
-	END IF;
-	INSERT INTO projet.inscriptions_examens VALUES(code_examenN,id_utilisateurN);
-	RETURN TRUE;
+	
+	
+	INSERT INTO projet.inscriptions_examens VALUES(n_code_examen,n_id_utilisateur);
+	RETURN TRUE ;
 END;
 $$ LANGUAGE plpgsql;
 
+
+-- Verif de l'inscription via Trigger
+CREATE OR REPLACE FUNCTION projet.verif_ajouterInscriptionExamen() RETURNS TRIGGER AS $$
+	BEGIN
+		IF NOT EXISTS(SELECT * FROM projet.examens e
+					WHERE e.code_examen = NEW.code_examen) THEN
+		RAISE 'L examen nexiste pas';														-- Reussi
+	END IF;
+	IF NOT EXISTS(SELECT * FROM projet.utilisateurs u
+					WHERE u.id_utilisateur = NEW.id_utilisateur) THEN
+		RAISE 'L utilisateur nexiste pas';													-- Reussi
+	END IF;
+	IF EXISTS (SELECT date FROM projet.examens e 										
+				WHERE e.code_examen = NEW.code_examen AND e.date IS NOT NULL) THEN
+		RAISE 'Date d examen déjà declare';													-- Reussi
+	END IF;
+	RETURN NEW;
+END;
+$$LANGUAGE plpgsql;
+CREATE TRIGGER trigger_verifi_ajouterInscriptionExamen BEFORE INSERT ON projet.inscriptions_examens
+	FOR EACH ROW EXECUTE PROCEDURE projet.verif_ajouterInscriptionExamen();
 
 --Ajoute/Modifie la date d'un examen
 CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(CHARACTER(6), timestamp) RETURNS BOOLEAN AS $$
