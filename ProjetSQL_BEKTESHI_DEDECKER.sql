@@ -122,7 +122,7 @@ CREATE TRIGGER trigger_verifi_ajouterExam BEFORE INSERT ON projet.examens
 
 
 -- Attribuer un local a un examen
-CREATE OR REPLACE FUNCTION projet.ajouterLocauxExamens(id_localN VARCHAR(10), code_examenN CHARACTER(6)) RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterLocauxExamens(VARCHAR(10), CHARACTER(6)) RETURNS VOID AS $$
 DECLARE
 	n_id_Local ALIAS FOR $1;
 	n_code_examen ALIAS FOR $2;
@@ -146,12 +146,12 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER A
 		END IF;
 		IF NOT EXISTS(SELECT * FROM projet.examens e
 						WHERE e.code_examen = NEW.code_examen) THEN
-			RAISE 'L examen nexiste pas';													-- Reussi
+			RAISE 'L examen nexiste pas';													
 		END IF;
 		IF ((SELECT support FROM projet.examens e 
 					WHERE e.code_examen=NEW.code_examen) = 'm') THEN
 			IF((SELECT machine FROM projet.locaux l WHERE l.id_local=NEW.id_local)='n') THEN
-				RAISE 'Pas de machines dispo dans le local';								-- Reussi
+				RAISE 'Pas de machines dispo dans le local';								
 			END IF;
 		END IF;
 		RETURN NEW;
@@ -159,6 +159,9 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER A
 $$LANGUAGE plpgsql;
 CREATE TRIGGER trigger_verifi_ajouterLocauxExamens BEFORE INSERT ON projet.locaux_examens
 	FOR EACH  ROW EXECUTE PROCEDURE projet.verif_ajouterLocauxExamens();
+
+
+
 
 
 CREATE OR REPLACE FUNCTION projet.ajouterInscriptionExamen(code_examenN CHARACTER(6), id_utilisateurN INTEGER) RETURNS BOOLEAN AS $$
@@ -183,63 +186,45 @@ $$ LANGUAGE plpgsql;
 
 
 --Implémenter !!!
-CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(code_examenN CHARACTER(6),dateN timestamp) RETURNS BOOLEAN AS $$
+CREATE OR REPLACE FUNCTION projet.ajouterDateExamen(CHARACTER(6), timestamp) RETURNS BOOLEAN AS $$
 DECLARE
-	dateFinNouveauExamen timestamp:=0;
-	examen RECORD;
-	dateDebutVerifExam timestamp:=0;
-	dateFinVerifExam timestamp:=0;
+	n_code_examen ALIAS FOR $1;
+	n_date ALIAS FOR $2;
 BEGIN
-	SELECT TIMESTAMPADD(MINUTE,(SELECT e.duree FROM projet.examen e WHERE e.code_examen=code_examenN),dateN) INTO dateFinNouveauExamen;
 	
-	FOR examen IN SELECT * FROM projet.examens e WHERE dateN::TIMESTAMP::DATE = e.date::TIMESTAMP::DATE LOOP
-		SELECT date FROM examen INTO dateDebutVerifExam;
-		SELECT TIMESTAMPADD(MINUTE,(SELECT duree FROM examen),(SELECT date FROM examen)) INTO dateFinVerifExam;
-
-		--examen qui commence avant et termine pendant celui ajouté
-		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateN::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME > dateN::TIMESTAMP::TIME)) THEN
-			RAISE 'Conflit Horaire (examen précédent pas encore terminé)';
-		END IF;
-
-		--examen qui commence avant et termine après celui ajouté
-		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateN::TIMESTAMP::TIME) AND (dateFinNouveauExamen::TIMESTAMP::TIME < dateFinVerifExam::TIMESTAMP::TIME)) THEN
-			RAISE 'Conflit Horaire (examen précédent termine après cet examen)';
-		END IF;
-
-		--examen qui commence avant la fin de celui ajout et termine après
-		IF((dateDebutVerifExam::TIMESTAMP::TIME < dateFinNouveauExamen::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME > dateFinNouveauExamen::TIMESTAMP::TIME)) THEN
-			RAISE 'Conflit Horaire (examen débute au milieu de l examen ajouté et termine après)';
-		END IF;
-
-		--examen qui commence après le début de celui ajoute et termine avant
-		IF((dateN::TIMESTAMP::TIME < dateDebutVerifExam::TIMESTAMP::TIME) AND (dateFinVerifExam::TIMESTAMP::TIME < dateFinNouveauExamen::TIMESTAMP::TIME)) THEN
-			RAISE 'Conflit Horaire (examen débute au milieu de l examen ajouté et termine avant)';
-		END IF;
-
-	END LOOP;
-
 	--Vérifier si date est sur autre examen
-	--TODO
-	IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
-					WHERE i.code_examen = code_examenN) THEN
-		RAISE 'Pas d etudiant Inscrit';														-- Reussi
-	END IF;
-
-	IF EXISTS (SELECT * FROM projet.examens e 
-				WHERE e.date::TIMESTAMP::DATE = dateN::TIMESTAMP::DATE
-				AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=code_examenN)) THEN
-		RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
-	END IF;
-
-	IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
-                WHERE l.code_examen = code_examenN) THEN
-        RAISE 'Un local a déjà été réservé';												-- Reussi
-	END IF;
-	
-	UPDATE projet.examens SET date=dateN WHERE code_examenN = code_examen;
+	UPDATE projet.examens SET date=n_date WHERE n_code_examen = code_examen;
 	RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION projet.verif_ajouterDateExamen() RETURNS TRIGGER AS $$
+	BEGIN
+		IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
+					WHERE i.code_examen = NEW.code_examen) THEN
+		RAISE 'Pas d etudiant Inscrit';														-- Reussi
+		END IF;
+		IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
+        	        WHERE l.code_examen = NEW.code_examen) THEN
+        	RAISE 'Un local a déjà été réservé';												-- Reussi
+		END IF;
+		IF EXISTS (SELECT * FROM projet.examens e 
+					WHERE e.date::TIMESTAMP::DATE = NEW.date::TIMESTAMP::DATE
+					AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=NEW.code_examen)) THEN
+			RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
+		END IF;
+		IF EXISTS (SELECT * FROM projet.examens e
+					WHERE NEW.date::TIMESTAMP::DATE =(SELECT ee.date::TIMESTAMP::DATE FROM projet.examens ee
+						WHERE ee.code_examen = (SELECT ie.code_examen FROM projet.inscriptions_examens ie
+							WHERE ie.id_utilisateur = (SELECT iee.id_utilisateur FROM projet.inscriptions_examens iee
+								WHERE iee.code_examen = NEW.code_examen)))) THEN
+			RAISE 'conflict';
+		END IF;
+		RETURN NEW;
+	END;
+$$LANGUAGE plpgsql;
+CREATE TRIGGER trigger_verifi_ajouterDateExam BEFORE UPDATE ON projet.examens
+	FOR EACH ROW EXECUTE PROCEDURE projet.verif_ajouterDateExamen();
 
 
 CREATE OR REPLACE FUNCTION projet.obtenirHoraireExamen(id_utilisateurN INTEGER) RETURNS SETOF RECORD AS $$
