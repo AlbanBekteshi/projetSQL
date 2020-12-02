@@ -154,6 +154,9 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER A
 				RAISE 'Pas de machines dispo dans le local';								
 			END IF;
 		END IF;
+		IF ((SELECT count (ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = NEW.code_examen )< (SELECT sum(l.capacite) FROM projet.locaux l, projet.locaux_examens le WHERE l.id_local = le.id_local AND le.code_examen = NEW.code_examen))
+			THEN RAISE 'Nombre suffisant de place';
+		END IF;	
 		RETURN NEW;
 	END;
 $$LANGUAGE plpgsql;
@@ -215,6 +218,7 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterDateExamen() RETURNS TRIGGER AS $
 		END IF;
 		IF EXISTS (SELECT * FROM projet.examens e 
 					WHERE e.date::TIMESTAMP::DATE = NEW.date::TIMESTAMP::DATE
+					AND e.code_examen <> NEW.code_examen
 					AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=NEW.code_examen)) THEN
 			RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
 		END IF;
