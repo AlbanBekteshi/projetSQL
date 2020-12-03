@@ -20,6 +20,7 @@ public class ApplicationCentrale {
 	private PreparedStatement horaireExamenBloc;
 	private PreparedStatement examenParLocaux;
 	private PreparedStatement examenNonReserver;
+	private PreparedStatement examenNonReserverBloc;
 	private final static Scanner sc = new Scanner(System.in);
 	
 	
@@ -54,6 +55,7 @@ public class ApplicationCentrale {
 					+ " WHERE e.id_bloc = ? GROUP BY e.code_examen ORDER BY e.date;");
 			examenParLocaux= conn.prepareStatement("SELECT le.id_local,e.date,le.code_examen,e.nom FROM projet.examens e, projet.locaux_examens le WHERE le.code_examen = e.code_examen AND le.id_local = ? GROUP BY le.id_local,e.date,le.code_examen,e.nom ORDER BY e.date;");
 			examenNonReserver = conn.prepareStatement("SELECT e.code_examen, e.nom, e.date FROM projet.examens e LEFT OUTER JOIN  projet.locaux_examens le ON le.code_examen = e.code_examen WHERE( (SELECT count(ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = e.code_examen)  > ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) OR ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) IS NULL ) ORDER BY e.code_examen;");
+			examenNonReserverBloc = conn.prepareCall("SELECT b.examen_non_complet FROM projet.blocs b WHERE b.id_bloc = ?;");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -107,17 +109,25 @@ public class ApplicationCentrale {
 				System.out.println("Examen dans un local");
 				app.examenParLocaux();
 				System.out.println("--------------------------------------\n");
+				break;
 			case 7:
 				System.out.println("--------------------------------------\n");
 				System.out.println("Visualiser Exam pas encore complet");
 				app.examenNonReserver();
 				System.out.println("--------------------------------------\n");
+				break;
+			case 8:
+				System.out.println("--------------------------------------\n");
+				System.out.println("Nombre d'examen non reserver dans un bloc");
+				app.examenNonReserverBloc();
+				System.out.println("--------------------------------------\n");
+				break;
 			default:
 				System.out.println("Erreur : Aucune action trouvee pour action "+action+"\n");
 				System.exit(1);
 				break;
 			}
-		}while(action >=1 && action <= 7);
+		}while(action >=1 && action <= 8);
 		
 	}
 	
@@ -136,11 +146,12 @@ public class ApplicationCentrale {
 		System.out.println("5: Horaire Examen");
 		System.out.println("6: Examen par locaux");
 		System.out.println("7: Visualiser Exam pas encore complet");
+		System.out.println("8: Nombre d'examen non reserver dans un bloc");
 		int action = 0;
 		
 		do {			
 			action =sc.nextInt();
-		} while(action<=0 || action >8);
+		} while(action<=0 || action >9);
 
 		return action;
 	}
@@ -253,6 +264,21 @@ public class ApplicationCentrale {
 			try (ResultSet rs = examenNonReserver.executeQuery()){
 				while(rs.next()) {
 					System.out.println("code "+rs.getString(1) +" nom "+ rs.getString(2)+" date "+rs.getString(3));
+				}
+			}
+		}catch(SQLException e) {
+			System.out.println(e.getMessage().split("\n")[0]);
+		}
+	}
+	
+	private void examenNonReserverBloc() {
+		System.out.println("Entrez le bloc");
+		int bloc = sc.nextInt();
+		try {
+			examenNonReserverBloc.setInt(1,bloc);
+			try(ResultSet rs = examenNonReserverBloc.executeQuery()){
+				while(rs.next()) {
+					System.out.println("Nombre d'examen non reserver : " +rs.getString(1));
 				}
 			}
 		}catch(SQLException e) {

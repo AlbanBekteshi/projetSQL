@@ -15,7 +15,8 @@ CREATE TABLE projet.blocs (
 	id_bloc SERIAL PRIMARY KEY,
 	code_bloc CHARACTER(6)
 		CHECK(code_bloc SIMILAR TO 'Bloc [0-9]'),
-	id_formation INTEGER REFERENCES projet.formations (id_formation) NOT NULL
+	id_formation INTEGER REFERENCES projet.formations (id_formation) NOT NULL,
+	examen_non_complet INTEGER DEFAULT 0
 );
 
 CREATE TABLE projet.utilisateurs(
@@ -97,9 +98,13 @@ DECLARE
 	v_id_bloc ALIAS FOR $3;
 	v_duree ALIAS FOR $4;
 	v_support ALIAS FOR $5;
+	anc_examen_non_complet INTEGER;
 BEGIN
+	SELECT b.examen_non_complet FROM projet.blocs b WHERE b.id_bloc = v_id_bloc INTO anc_examen_non_complet;
+	UPDATE projet.blocs b SET examen_non_complet =anc_examen_non_complet+1 WHERE b.id_bloc = v_id_bloc ;
 	INSERT INTO projet.examens(code_examen,nom,id_bloc,duree,support) 
 		VALUES(v_code_examen,v_nom,v_id_bloc,v_duree,v_support);
+	
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
@@ -160,6 +165,7 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER A
 				RAISE 'Pas de machines dispo dans le local';								
 			END IF;
 		END IF;
+		
 		IF ((SELECT count (ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = NEW.code_examen )< (SELECT sum(l.capacite) FROM projet.locaux l, projet.locaux_examens le WHERE l.id_local = le.id_local AND le.code_examen = NEW.code_examen))
 			THEN RAISE 'Nombre suffisant de place';
 		END IF;
@@ -179,8 +185,30 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER A
 		RETURN NEW;
 	END;
 $$LANGUAGE plpgsql;
+
 CREATE TRIGGER trigger_verifi_ajouterLocauxExamens BEFORE INSERT ON projet.locaux_examens
 	FOR EACH  ROW EXECUTE PROCEDURE projet.verif_ajouterLocauxExamens();
+
+CREATE OR REPLACE FUNCTION projet.apresAjoutLocaux() RETURNS TRIGGER as $$
+	DECLARE
+		anc_examen_non_complet INTEGER;
+		v_id_bloc INTEGER;
+	BEGIN
+		IF ((SELECT count (ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = NEW.code_examen )< (SELECT sum(l.capacite) FROM projet.locaux l, projet.locaux_examens le WHERE l.id_local = le.id_local AND le.code_examen = NEW.code_examen)) THEN
+			SELECT b.examen_non_complet FROM projet.blocs b, projet.examens e 
+				WHERE e.code_examen = NEW.code_examen AND e.id_bloc = b.id_bloc INTO anc_examen_non_complet;
+			SELECT e.id_bloc FROM projet.examens e 
+				WHERE e.code_examen = NEW.code_examen INTO v_id_bloc;
+				UPDATE projet.blocs b SET examen_non_complet =anc_examen_non_complet+1 WHERE b.id_bloc = v_id_bloc ;
+		END IF;
+		RETURN NEW;
+	END
+$$LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_apre_ajout AFTER INSERT ON projet.locaux_examens
+	FOR EACH ROW EXECUTE PROCEDURE projet.apresAjoutLocaux();
+
+
 
 
 
@@ -358,3 +386,5 @@ SELECT projet.ajouterInscriptionExamenBloc(1);
 SELECT * FROM projet.ajouterInscriptionExamen('IPL200','2');
 SELECT * FROM projet.inscriptions_examens;
 SELECT * FROM projet.examens
+
+
