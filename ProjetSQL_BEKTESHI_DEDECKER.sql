@@ -135,6 +135,12 @@ $$ LANGUAGE plpgsql;
 
 -- Verif d'attribution d'un local via TRIGGER
 CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER AS $$
+	DECLARE
+		anc_exam RECORD;
+		nvx_date TIMESTAMP;
+		nvx_duree INTEGER;
+		nvx_dureeStr VARCHAR :='';
+		anc_dureeStr VARCHAR :='';
 	BEGIN
 		IF EXISTS (SELECT e.date FROM projet.examens e 
 					WHERE NEW.code_examen = e.code_examen AND e.date IS NULL) THEN
@@ -156,7 +162,20 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER A
 		END IF;
 		IF ((SELECT count (ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = NEW.code_examen )< (SELECT sum(l.capacite) FROM projet.locaux l, projet.locaux_examens le WHERE l.id_local = le.id_local AND le.code_examen = NEW.code_examen))
 			THEN RAISE 'Nombre suffisant de place';
-		END IF;	
+		END IF;
+
+		SELECT e.duree FROM projet.examens e WHERE e.code_examen = NEW.code_examen INTO nvx_duree;
+		SELECT e.date FROM projet.examens e WHERE e.code_examen = NEW.code_examen INTO nvx_date;
+		nvx_dureeStr := nvx_duree||' minutes';
+
+		FOR anc_exam IN (SELECT e.* FROM projet.examens e 
+							WHERE e.code_examen IN (SELECT le.code_examen FROM projet.locaux_examens le
+								WHERE le.id_local = NEW.id_local)) LOOP
+			anc_dureeStr := anc_dureeStr||' minutes';
+			IF((nvx_date, nvx_dureeStr::INTERVAL) OVERLAPS(anc_exam.date, anc_dureeStr::INTERVAL)) IS TRUE THEN
+				RAISE 'Local déjà réservé pour un examen a ce moment';
+			END IF;
+		END LOOP;
 		RETURN NEW;
 	END;
 $$LANGUAGE plpgsql;
@@ -339,4 +358,3 @@ SELECT projet.ajouterInscriptionExamenBloc(1);
 SELECT * FROM projet.ajouterInscriptionExamen('IPL200','2');
 SELECT * FROM projet.inscriptions_examens;
 SELECT * FROM projet.examens
-
