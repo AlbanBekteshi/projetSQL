@@ -236,7 +236,7 @@ public class ApplicationCentrale {
 			horaireExamenBloc.setInt(1,bloc);
 			try(ResultSet rs = horaireExamenBloc.executeQuery()){
 				while(rs.next()) {
-					System.out.println("code "+ rs.getString(1) +" nom "+rs.getString(2)+" date "+rs.getString(3)+" nmb "+rs.getInt(4));
+					System.out.println("code "+ rs.getString(1) +" nom "+rs.getString(2)+" date "+rs.getString(3)+" Nombre de locaux resevé "+rs.getInt(4));
 				}
 			}
 		}catch(SQLException e) {
