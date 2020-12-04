@@ -55,7 +55,7 @@ public class ApplicationCentrale {
 					+ " WHERE e.id_bloc = ? GROUP BY e.code_examen ORDER BY e.date;");
 			examenParLocaux= conn.prepareStatement("SELECT le.id_local,e.date,le.code_examen,e.nom FROM projet.examens e, projet.locaux_examens le WHERE le.code_examen = e.code_examen AND le.id_local = ? GROUP BY le.id_local,e.date,le.code_examen,e.nom ORDER BY e.date;");
 			examenNonReserver = conn.prepareStatement("SELECT e.code_examen, e.nom, e.date FROM projet.examens e LEFT OUTER JOIN  projet.locaux_examens le ON le.code_examen = e.code_examen WHERE( (SELECT count(ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = e.code_examen)  > ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) OR ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) IS NULL ) ORDER BY e.code_examen;");
-			examenNonReserverBloc = conn.prepareCall("SELECT b.examen_non_complet FROM projet.blocs b WHERE b.id_bloc = ?;");
+			examenNonReserverBloc = conn.prepareCall("SELECT b.id_bloc, b.examen_non_complet FROM projet.blocs b;");
 		} catch (SQLException e) {
 			System.out.println("Erreur lors de la preparation des statement");
 			System.exit(1);
@@ -88,37 +88,37 @@ public class ApplicationCentrale {
 				break;
 			case 3:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Ajouter Locaux pour examen");
+				System.out.println("Reserver Locaux pour examen\n");
 				app.ajouterLocauxExamens();
 				System.out.println("--------------------------------------\n");
 				break;
 			case 4:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Ajouter/Modifier La Date a un examen");
+				System.out.println("Ajouter/Modifier La Date a un examen\n");
 				app.ajouterDateExamen();
 				System.out.println("--------------------------------------\n");
 				break;
 			case 5:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Horaire Exam");
+				System.out.println("Horaire Examen\n");
 				app.horaireExamenBloc();
 				System.out.println("--------------------------------------\n");
 				break;
 			case 6:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Examen dans un local");
+				System.out.println("Examen dans un local\n");
 				app.examenParLocaux();
 				System.out.println("--------------------------------------\n");
 				break;
 			case 7:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Visualiser Exam pas encore complet");
+				System.out.println("Visualiser Exam pas encore complet\n");
 				app.examenNonReserver();
 				System.out.println("--------------------------------------\n");
 				break;
 			case 8:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Nombre d'examen non reserver dans un bloc");
+				System.out.println("Nombre d'examen non reserver par bloc\n");
 				app.examenNonReserverBloc();
 				System.out.println("--------------------------------------\n");
 				break;
@@ -141,12 +141,12 @@ public class ApplicationCentrale {
 		System.out.println("Entrez l'action que vous voulez executer :\n");
 		System.out.println("1: Ajouter local");
 		System.out.println("2: Ajouter Examen");
-		System.out.println("3: Ajouter un local pour un Examen");
+		System.out.println("3: Reserver un local pour un Examen");
 		System.out.println("4: Ajouter la date a un Examen");
 		System.out.println("5: Horaire Examen");
 		System.out.println("6: Examen par locaux");
 		System.out.println("7: Visualiser Exam pas encore complet");
-		System.out.println("8: Nombre d'examen non reserver dans un bloc");
+		System.out.println("8: Nombre d'examen non reserver par bloc");
 		int action = 0;
 		
 		do {			
@@ -272,13 +272,10 @@ public class ApplicationCentrale {
 	}
 	
 	private void examenNonReserverBloc() {
-		System.out.println("Entrez le bloc");
-		int bloc = sc.nextInt();
 		try {
-			examenNonReserverBloc.setInt(1,bloc);
 			try(ResultSet rs = examenNonReserverBloc.executeQuery()){
 				while(rs.next()) {
-					System.out.println("Nombre d'examen non reserver : " +rs.getString(1));
+					System.out.println("Bloc : "+rs.getString(1)+" Nombre d'examen non reserver : " +rs.getString(2));
 				}
 			}
 		}catch(SQLException e) {
