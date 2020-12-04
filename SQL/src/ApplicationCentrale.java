@@ -112,7 +112,7 @@ public class ApplicationCentrale {
 				break;
 			case 7:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Visualiser Examen pas encore complet\n");
+				System.out.println("Visualiser les Examens pas encore complet\n");
 				app.examenNonReserver();
 				System.out.println("--------------------------------------\n");
 				break;
@@ -145,7 +145,7 @@ public class ApplicationCentrale {
 		System.out.println("4: Ajouter/Modifier la date a un Examen");
 		System.out.println("5: Horaire Examen");
 		System.out.println("6: Examen par locaux");
-		System.out.println("7: Visualiser Examen pas encore complet");
+		System.out.println("7: Visualiser les Examens pas encore complet");
 		System.out.println("8: Nombre d'examen non complet par bloc");
 		int action = 0;
 		
