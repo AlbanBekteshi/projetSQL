@@ -30,3 +30,14 @@ INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_pass
 	VALUES (DEFAULT,'Ferneeuw','Ferneeuw@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
 INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
 	VALUES (DEFAULT,'Cambron','Cambron@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
+
+/*
+SELECTS
+*/
+
+SELECT * FROM projet.blocs;
+SELECT * FROM projet.examens;
+SELECT * FROM projet.locaux;
+SELECT * FROM projet.inscriptions_examens;
+SELECT * FROM projet.locaux_examens;
+SELECT * FROM projet.utilisateurs;
