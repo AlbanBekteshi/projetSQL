@@ -14,7 +14,7 @@ public class ApplicationUtilisateur {
 	private PreparedStatement obtenirUtilisateurDepuisNomUtilisateur;
 	private PreparedStatement obtenirUtilisateurDepuisIdUtilisateur;
 	private PreparedStatement afficherHoraireUtilisateur;
-	private PreparedStatement visualiserExamenBloc;
+	private PreparedStatement visualiserExamen;
 	private PreparedStatement ajouterInscriptionExamen;
 	private PreparedStatement ajouterInscriptionExamenBloc;
 	
@@ -83,8 +83,7 @@ public class ApplicationUtilisateur {
 		System.out.println("Voici la liste de tous les examens");
 		
 		try {
-			visualiserExamenBloc.setInt(1, id_bloc);
-			try(ResultSet rs = visualiserExamenBloc.executeQuery()) {
+			try(ResultSet rs = visualiserExamen.executeQuery()) {
 				while(rs.next()) {
 					String stringAAfficher ="";
 					stringAAfficher+= rs.getString("code_examen");
@@ -277,7 +276,7 @@ public class ApplicationUtilisateur {
 			ajouterUtilisateur = conn.prepareStatement("SELECT * FROM projet.inscriptionUtilisateur(?,?,?,?);");
 			obtenirUtilisateurDepuisNomUtilisateur = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE nom_utilisateur = ?;");
 			obtenirUtilisateurDepuisIdUtilisateur = conn.prepareStatement("SELECT * FROM projet.utilisateurs WHERE id_utilisateur = ?;");
-			visualiserExamenBloc = conn.prepareStatement("SELECT * FROM projet.examens WHERE id_bloc = ?");
+			visualiserExamen = conn.prepareStatement("SELECT * FROM projet.examens");
 			ajouterInscriptionExamen = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamen(?,?);");
 			ajouterInscriptionExamenBloc = conn.prepareStatement("SELECT * FROM projet.ajouterInscriptionExamenBloc(?);");
 			afficherHoraireUtilisateur = conn.prepareStatement("SELECT * FROM projet.obtenirHoraireExamen(?) t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, duree INTEGER, locaux VARCHAR);");
