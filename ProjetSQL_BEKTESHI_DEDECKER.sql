@@ -24,7 +24,7 @@ CREATE TABLE projet.utilisateurs(
 	nom_utilisateur VARCHAR(100) NOT NULL UNIQUE CHECK(nom_utilisateur<>''),
 	email VARCHAR(100) NOT NULL UNIQUE CHECK(email<>''),
 	mot_de_passe VARCHAR(100) NOT NULL CHECK (mot_de_passe<>''),
-	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL -- est-ce qu'on est sur de sa ? 
+	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL 
 );
 
 CREATE TABLE projet.examens(
@@ -66,7 +66,7 @@ CREATE OR REPLACE FUNCTION projet.ajouterLocal(id_local VARCHAR(10), capacite IN
 DECLARE
 BEGIN
 	IF(capacite<=0) THEN 
-		RAISE 'Capacité doit être > que 0'; 											-- Reussi
+		RAISE 'Capacité doit être > que 0'; 											
 	END IF;
 	INSERT INTO projet.locaux VALUES
 		(id_local,capacite,machine);
@@ -80,7 +80,7 @@ DECLARE
 BEGIN
 	IF NOT EXISTS(SELECT * FROM projet.blocs b
 				WHERE b.id_bloc =id_blocN) THEN
-		RAISE 'Bloc invalide';															-- Reussi
+		RAISE 'Bloc invalide';															
 	END IF;
     INSERT INTO projet.utilisateurs 
         VALUES(DEFAULT,nom_utilisateur,email,mot_de_passe,id_blocN);
@@ -194,7 +194,7 @@ CREATE OR REPLACE FUNCTION projet.apresAjoutLocaux() RETURNS TRIGGER as $$
 		anc_examen_non_complet INTEGER;
 		v_id_bloc INTEGER;
 	BEGIN
-		IF ((SELECT count (ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = NEW.code_examen )< (SELECT sum(l.capacite) FROM projet.locaux l, projet.locaux_examens le WHERE l.id_local = le.id_local AND le.code_examen = NEW.code_examen)) THEN
+		IF ((SELECT count (ie.id_utilisateur) FROM projet.inscriptions_examens ie WHERE ie.code_examen = NEW.code_examen )<= (SELECT sum(l.capacite) FROM projet.locaux l, projet.locaux_examens le WHERE l.id_local = le.id_local AND le.code_examen = NEW.code_examen)) THEN
 			SELECT b.examen_non_complet FROM projet.blocs b, projet.examens e 
 				WHERE e.code_examen = NEW.code_examen AND e.id_bloc = b.id_bloc INTO anc_examen_non_complet;
 			SELECT e.id_bloc FROM projet.examens e 
@@ -232,15 +232,15 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterInscriptionExamen() RETURNS TRIGG
 	BEGIN
 		IF NOT EXISTS(SELECT * FROM projet.examens e
 					WHERE e.code_examen = NEW.code_examen) THEN
-		RAISE 'L examen nexiste pas';														-- Reussi
+		RAISE 'L examen nexiste pas';														
 	END IF;
 	IF NOT EXISTS(SELECT * FROM projet.utilisateurs u
 					WHERE u.id_utilisateur = NEW.id_utilisateur) THEN
-		RAISE 'L utilisateur nexiste pas';													-- Reussi
+		RAISE 'L utilisateur nexiste pas';													
 	END IF;
 	IF EXISTS (SELECT date FROM projet.examens e 										
 				WHERE e.code_examen = NEW.code_examen AND e.date IS NOT NULL) THEN
-		RAISE 'Date d examen déjà declare';													-- Reussi
+		RAISE 'Date d examen déjà declare';													-
 	END IF;
 	RETURN NEW;
 END;
@@ -270,17 +270,17 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterDateExamen() RETURNS TRIGGER AS $
 	BEGIN
 		IF NOT EXISTS (SELECT i.id_utilisateur FROM projet.inscriptions_examens i
 					WHERE i.code_examen = NEW.code_examen) THEN
-		RAISE 'Pas d etudiant Inscrit';														-- Reussi
+		RAISE 'Pas d etudiant Inscrit';														
 		END IF;
 		IF EXISTS (SELECT l.id_local FROM projet.locaux_examens l
         	        WHERE l.code_examen = NEW.code_examen) THEN
-        	RAISE 'Un local a déjà été réservé';												-- Reussi
+        	RAISE 'Un local a déjà été réservé';												
 		END IF;
 		IF EXISTS (SELECT * FROM projet.examens e 
 					WHERE e.date::TIMESTAMP::DATE = NEW.date::TIMESTAMP::DATE
 					AND e.code_examen <> NEW.code_examen
 					AND e.id_bloc = (SELECT e.id_bloc FROM projet.examens e WHERE e.code_examen=NEW.code_examen)) THEN
-			RAISE 'Un examen du même bloc existe deja ce jour la';								-- Reussi
+			RAISE 'Un examen du même bloc existe deja ce jour la';								
 		END IF;
 
 		SELECT e.duree FROM projet.examens e WHERE e.code_examen = NEW.code_examen INTO nvx_duree;
@@ -311,7 +311,7 @@ DECLARE
 	code_examen VARCHAR;
 	nom VARCHAR;
 	dateDebut TIMESTAMP;
-	locaux VARCHAR;
+	locaux VARCHAR:='';
 	duree INTEGER;
 
 	examen RECORD;
@@ -323,10 +323,10 @@ BEGIN
 		SELECT examen.code_examen INTO code_examen;
 		SELECT examen.nom INTO nom;
 		SELECT examen.date::TIMESTAMP INTO dateDebut;
-
-		FOR local IN SELECT * FROM projet.locaux_examens le WHERE le.code_examen=examen.code_examen LOOP
+		locaux :='';
+		FOR local IN (SELECT * FROM projet.locaux_examens le WHERE le.code_examen=examen.code_examen )LOOP
 			plusSymbol:='+';
-			locaux:=local.id_local || plusSymbol;
+			locaux:=locaux||local.id_local || plusSymbol;
 		END LOOP;
 
 		SELECT code_examen,nom,dateDebut,duree,locaux INTO sortie;
@@ -383,15 +383,3 @@ SELECT * FROM projet.utilisateurs;
 --SELECT * FROM projet.locaux
 --SELECT * FROM projet.inscriptions_examens
 --SELECT * FROM projet.locaux_examens
-
-
-
-
---SELECT DISTINCT e.code_examen, e.nom, e.date FROM projet.examens e 
---LEFT OUTER JOIN  projet.locaux_examens le ON le.code_examen = e.code_examen 
---	WHERE(  ((SELECT count(ie.id_utilisateur)
---		FROM projet.inscriptions_examens ie WHERE ie.code_examen = e.code_examen)  > 
---	 ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) )OR ( SELECT sum(l.capacite) 
---		FROM projet.locaux l WHERE le.id_local = l.id_local ) IS NULL ) ORDER BY e.code_examen;
-	
-
