@@ -165,12 +165,8 @@ public class ApplicationUtilisateur {
 										
 					stringAAfficher+="\t";
 					String locaux = rs.getString("locaux");
-					if(locaux!=null) {
-						stringAAfficher+=locaux;
-					}
-					else {
-						stringAAfficher+="Aucun local";
-					}
+					stringAAfficher+="locaux: "+locaux;
+					
 					System.out.println(stringAAfficher);
 				}
 			}

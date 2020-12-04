@@ -240,7 +240,7 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterInscriptionExamen() RETURNS TRIGG
 	END IF;
 	IF EXISTS (SELECT date FROM projet.examens e 										
 				WHERE e.code_examen = NEW.code_examen AND e.date IS NOT NULL) THEN
-		RAISE 'Date d examen déjà declare';													-
+		RAISE 'Date d examen déjà declare';
 	END IF;
 	RETURN NEW;
 END;
@@ -368,18 +368,9 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 
 --Tous les mdp sont 123
 INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
-	VALUES (DEFAULT,'damas','adrien@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
+	VALUES (DEFAULT,'damas','damas@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
 INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
-	VALUES (DEFAULT,'fern','alban@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
+	VALUES (DEFAULT,'ferneeuw','ferneeuw@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
 	INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
 	VALUES (DEFAULT,'cambron','cambron@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
 SELECT * FROM projet.utilisateurs;
-
-
-
-
---SELECT * FROM projet.examens;
---SELECT * FROM projet.blocs
---SELECT * FROM projet.locaux
---SELECT * FROM projet.inscriptions_examens
---SELECT * FROM projet.locaux_examens
