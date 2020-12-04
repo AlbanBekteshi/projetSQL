@@ -372,19 +372,9 @@ INSERT INTO projet.locaux (id_local,capacite,machine)
 	VALUES ('A019',1,'o');
 
 --Tous les mdp sont 123
-INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
-	VALUES (DEFAULT,'adrien','adrien@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
-INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
-	VALUES (DEFAULT,'alban','alban@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
-SELECT * FROM projet.utilisateurs;
-
-SELECT * FROM projet.obtenirHoraireExamen(1) 
-	t(code_examen VARCHAR,nom VARCHAR, dateDebut TIMESTAMP, duree INTEGER, locaux VARCHAR);
-
-
-SELECT projet.ajouterInscriptionExamenBloc(1);
-SELECT * FROM projet.ajouterInscriptionExamen('IPL200','2');
-SELECT * FROM projet.inscriptions_examens;
-SELECT * FROM projet.examens
-
-
+INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+	VALUES (DEFAULT,'Damas','Damas@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
+INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+	VALUES (DEFAULT,'Ferneeuw','Ferneeuw@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
+INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
+	VALUES (DEFAULT,'Cambron','Cambron@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
