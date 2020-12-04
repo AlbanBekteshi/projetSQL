@@ -177,7 +177,7 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterLocauxExamens() RETURNS TRIGGER A
 		FOR anc_exam IN (SELECT e.* FROM projet.examens e 
 							WHERE e.code_examen IN (SELECT le.code_examen FROM projet.locaux_examens le
 								WHERE le.id_local = NEW.id_local)) LOOP
-			anc_dureeStr := anc_dureeStr||' minutes';
+			anc_dureeStr := anc_exam.duree||' minutes';
 			IF((nvx_date, nvx_dureeStr::INTERVAL) OVERLAPS(anc_exam.date, anc_dureeStr::INTERVAL)) IS TRUE THEN
 				RAISE 'Local déjà réservé pour un examen a ce moment';
 			END IF;
@@ -199,7 +199,7 @@ CREATE OR REPLACE FUNCTION projet.apresAjoutLocaux() RETURNS TRIGGER as $$
 				WHERE e.code_examen = NEW.code_examen AND e.id_bloc = b.id_bloc INTO anc_examen_non_complet;
 			SELECT e.id_bloc FROM projet.examens e 
 				WHERE e.code_examen = NEW.code_examen INTO v_id_bloc;
-				UPDATE projet.blocs b SET examen_non_complet =anc_examen_non_complet+1 WHERE b.id_bloc = v_id_bloc ;
+				UPDATE projet.blocs b SET examen_non_complet =anc_examen_non_complet-1 WHERE b.id_bloc = v_id_bloc ;
 		END IF;
 		RETURN NEW;
 	END
@@ -289,7 +289,8 @@ CREATE OR REPLACE FUNCTION projet.verif_ajouterDateExamen() RETURNS TRIGGER AS $
 		FOR anc_exam IN (SELECT ee.* FROM projet.examens ee
 						WHERE ee.code_examen IN (SELECT ie.code_examen FROM projet.inscriptions_examens ie
 							WHERE ie.id_utilisateur IN (SELECT iee.id_utilisateur FROM projet.inscriptions_examens iee
-								WHERE iee.code_examen = NEW.code_examen))) LOOP
+								WHERE iee.code_examen = NEW.code_examen))
+						AND ee.code_examen <> NEW.code_examen) LOOP
 			anc_dureeStr := anc_exam.duree||' minutes';
 			IF ( (NEW.date, nvx_dureeStr::INTERVAL) OVERLAPS (anc_exam.date, anc_dureeStr::INTERVAL)) IS TRUE THEN
 				RAISE 'Conflit Horaire';
@@ -360,11 +361,37 @@ INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 	VALUES (DEFAULT,'Bloc 1',1);
 INSERT INTO projet.blocs(id_bloc,code_bloc,id_formation)
 	VALUES (DEFAULT,'Bloc 2',1);
+INSERT INTO projet.locaux (id_local,capacite,machine)
+	VALUES ('A017',2,'o');
+INSERT INTO projet.locaux (id_local,capacite,machine)
+	VALUES ('A019',1,'o');
 
 --Tous les mdp sont 123
-INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Damas','Damas@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
-INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Ferneeuw','Ferneeuw@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
-INSERT INTO projet.utilisateurs(id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc)
-	VALUES (DEFAULT,'Cambron','Cambron@email.be','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
+INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
+	VALUES (DEFAULT,'damas','adrien@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',1);
+INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
+	VALUES (DEFAULT,'fern','alban@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
+	INSERT INTO projet.utilisateurs (id_utilisateur,nom_utilisateur,email,mot_de_passe,id_bloc) 
+	VALUES (DEFAULT,'cambron','cambron@email.com','$2a$10$kS/c5ug2K4ptRtPNXFHarOLONg2SIrFgS/W.NEPMj2iqxQqfQt9dG',2);
+SELECT * FROM projet.utilisateurs;
+
+
+
+
+--SELECT * FROM projet.examens;
+--SELECT * FROM projet.blocs
+--SELECT * FROM projet.locaux
+--SELECT * FROM projet.inscriptions_examens
+--SELECT * FROM projet.locaux_examens
+
+
+
+
+--SELECT DISTINCT e.code_examen, e.nom, e.date FROM projet.examens e 
+--LEFT OUTER JOIN  projet.locaux_examens le ON le.code_examen = e.code_examen 
+--	WHERE(  ((SELECT count(ie.id_utilisateur)
+--		FROM projet.inscriptions_examens ie WHERE ie.code_examen = e.code_examen)  > 
+--	 ( SELECT sum(l.capacite) FROM projet.locaux l WHERE le.id_local = l.id_local ) )OR ( SELECT sum(l.capacite) 
+--		FROM projet.locaux l WHERE le.id_local = l.id_local ) IS NULL ) ORDER BY e.code_examen;
+	
+
