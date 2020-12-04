@@ -105,7 +105,7 @@ public class ApplicationUtilisateur {
 	
 	private void inscriptionExamen() {
 		System.out.println("Inscription a un examen :");
-		System.out.println("Entrez le code de l'examen auquel vous voulez vous inscrire :");
+		System.out.println("Entrez le code de l'examen auquel vous voulez vous inscrire sous format IPL[0-9][0-9][0-9]:");
 		String codeExamen = scanner.next();
 		
 		try {
@@ -118,7 +118,6 @@ public class ApplicationUtilisateur {
 	}
 
 	private void inscriptionTousExamensBloc() {
-		// TODO
 		try {
 			ajouterInscriptionExamenBloc.setInt(1, this.idUtilisateur);
 			try(ResultSet rs = ajouterInscriptionExamenBloc.executeQuery()){
