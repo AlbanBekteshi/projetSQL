@@ -112,13 +112,13 @@ public class ApplicationCentrale {
 				break;
 			case 7:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Visualiser Exam pas encore complet\n");
+				System.out.println("Visualiser Examen pas encore complet\n");
 				app.examenNonReserver();
 				System.out.println("--------------------------------------\n");
 				break;
 			case 8:
 				System.out.println("--------------------------------------\n");
-				System.out.println("Nombre d'examen non reserver par bloc\n");
+				System.out.println("Nombre d'examen non complet par bloc\n");
 				app.examenNonReserverBloc();
 				System.out.println("--------------------------------------\n");
 				break;
@@ -142,11 +142,11 @@ public class ApplicationCentrale {
 		System.out.println("1: Ajouter local");
 		System.out.println("2: Ajouter Examen");
 		System.out.println("3: Reserver un local pour un Examen");
-		System.out.println("4: Ajouter la date a un Examen");
+		System.out.println("4: Ajouter/Modifier la date a un Examen");
 		System.out.println("5: Horaire Examen");
 		System.out.println("6: Examen par locaux");
-		System.out.println("7: Visualiser Exam pas encore complet");
-		System.out.println("8: Nombre d'examen non reserver par bloc");
+		System.out.println("7: Visualiser Examen pas encore complet");
+		System.out.println("8: Nombre d'examen non complet par bloc");
 		int action = 0;
 		
 		do {			
@@ -183,9 +183,9 @@ public class ApplicationCentrale {
 		String nom = sc.next();
 		System.out.println("Entrez le bloc");
 		int bloc = sc.nextInt();
-		System.out.println("Entrez la durï¿½e en minute");
+		System.out.println("Entrez la duree en minute");
 		int duree = sc.nextInt();
-		System.out.println("L'examen est-t-il sur machines ou ï¿½crit? \nMachine => m\nEcrit=> e");
+		System.out.println("L'examen est-t-il sur machines ou ecrit? \nMachine => m\nEcrit=> e");
 		char type = sc.next().charAt(0);
 		try {
 			ajouterExamen.setString(1, code);
@@ -236,7 +236,7 @@ public class ApplicationCentrale {
 			horaireExamenBloc.setInt(1,bloc);
 			try(ResultSet rs = horaireExamenBloc.executeQuery()){
 				while(rs.next()) {
-					System.out.println("code "+ rs.getString(1) +" nom "+rs.getString(2)+" date "+rs.getString(3)+" Nombre de locaux resevé "+rs.getInt(4));
+					System.out.println("code : "+ rs.getString(1) +"   Nom : "+rs.getString(2)+"   Date : "+rs.getString(3)+"   Nombre de locaux resevé : "+rs.getInt(4));
 				}
 			}
 		}catch(SQLException e) {
@@ -251,7 +251,7 @@ public class ApplicationCentrale {
 			examenParLocaux.setString(1, id_local);
 			try(ResultSet rs = examenParLocaux.executeQuery()){
 				while(rs.next()) {
-					System.out.println("Local : "+rs.getString(1)+ " Date "+rs.getString(2)+" code "+rs.getString(3)+" nom "+rs.getString(4));
+					System.out.println("Local : "+rs.getString(1)+ "   Date : "+rs.getString(2)+"   Code : "+rs.getString(3)+"   Nom : "+rs.getString(4));
 				}
 			}
 		}catch(SQLException e) {
@@ -263,7 +263,7 @@ public class ApplicationCentrale {
 		try {
 			try (ResultSet rs = examenNonReserver.executeQuery()){
 				while(rs.next()) {
-					System.out.println("code "+rs.getString(1) +" nom "+ rs.getString(2)+" date "+rs.getString(3));
+					System.out.println("Code : "+rs.getString(1) +"   Nom : "+ rs.getString(2)+"   Date : "+rs.getString(3));
 				}
 			}
 		}catch(SQLException e) {
@@ -275,7 +275,7 @@ public class ApplicationCentrale {
 		try {
 			try(ResultSet rs = examenNonReserverBloc.executeQuery()){
 				while(rs.next()) {
-					System.out.println("Bloc : "+rs.getString(1)+" Nombre d'examen non reserver : " +rs.getString(2));
+					System.out.println("Bloc : "+rs.getString(1)+"   Nombre d'examen non reserver : " +rs.getString(2));
 				}
 			}
 		}catch(SQLException e) {
